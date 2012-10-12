@@ -1,0 +1,4 @@
+Comic Creeper
+
+dependency:
+	libcurl-7.21.2 +
