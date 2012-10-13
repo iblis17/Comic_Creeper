@@ -19,12 +19,12 @@
 #include <wx/gdicmn.h>
 #include <wx/sstream.h>
 #include <wx/socket.h>
-#include <string>
 #include <wx/sckstrm.h>
 
 #include <curl/curl.h>
 
-#include <iostream>
+#include <string>
+#include <fstream>
 
 class creeperFrame: public wxFrame
 {
@@ -52,6 +52,7 @@ class creeperFrame: public wxFrame
         void SocketEvn(wxSocketEvent& event);
 		int GetWebdata(const char *, const char *);
 		void ClearBtn(wxCommandEvent& event);
+		std::string Getcview(const char *file);
 
         wxStaticText *creeperContent;
 		wxPanel *creeperPanel;
@@ -60,6 +61,7 @@ class creeperFrame: public wxFrame
 		wxTextCtrl *creeperSInput;	// For Search Input
 		wxButton *creeperClearBtn;
 		wxStaticText *creeperFileList;
+		wxString TmpDir;
 
         DECLARE_EVENT_TABLE()
 };

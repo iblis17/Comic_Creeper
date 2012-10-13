@@ -104,6 +104,7 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 								wxDefaultPosition, wxDefaultSize);
 
 	creeperFileList = new wxStaticText(creeperPanel, idFileList, _(""));
+	TmpDir = _("./tmp/");
 
 	wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
@@ -152,7 +153,8 @@ void creeperFrame::SearchBtn(wxCommandEvent& event)/*{{{*/
 	}
 
 	wxString Url(_("http://www.8comic.com/html/"));
-	wxString DestFile(_("./tmp/"));
+	wxString DestFile(TmpDir);
+	std::string CodeUrl, DestCode;
 
 	Url += creeperSInput->GetValue() + _(".html");
 	DestFile += creeperSInput->GetValue() + _(".html");
@@ -162,13 +164,36 @@ void creeperFrame::SearchBtn(wxCommandEvent& event)/*{{{*/
 
 	if ( GetWebdata(host.data(), dest.data()) != 0)
 	{
-		creeperFileList->SetLabel( _("Fail to get:") + creeperFileList->GetLabel() + Url + _("\n"));
-	}
-	else
-	{
-		creeperFileList->SetLabel( creeperFileList->GetLabel() + DestFile + _("\n"));
+		creeperFileList->SetLabel( creeperFileList->GetLabel() + _("Fail to get:") + Url + _("\n"));
+		return;
 	}
 
+	creeperFileList->SetLabel( creeperFileList->GetLabel() + DestFile + _("\n"));
+	CodeUrl = Getcview(dest.data());
+
+	if(CodeUrl == "Error")
+	{
+		return;
+	}
+
+	CodeUrl += creeperSInput->GetValue().mb_str();
+	CodeUrl += ".html";
+	DestCode = TmpDir.mb_str();
+	DestCode += creeperSInput->GetValue().mb_str();
+	DestCode += "-code.html";
+	/*wxString ss(CodeUrl.c_str(), wxConvUTF8);
+	wxMessageBox(ss);
+	*/
+
+	if( GetWebdata(CodeUrl.c_str(), DestCode.c_str()) != 0)
+	{
+		wxString ts(CodeUrl.c_str(), wxConvUTF8);
+		creeperFileList->SetLabel( creeperFileList->GetLabel() + _("Fail to get:") + ts + _("\n"));
+		return;
+	}
+
+	wxString ts(DestCode.c_str(), wxConvUTF8);
+	creeperFileList->SetLabel( creeperFileList->GetLabel() + ts + _("\n"));
 	//GetWebdata("http://www.8comic.com", "./tmp/creeperHtml");
 	//GetWebdata("http://www.8comic.com/html/7483.html", "./tmp/7483.html");
 }/*}}}*/
@@ -233,6 +258,109 @@ void creeperFrame::ClearBtn(wxCommandEvent& event)
 {
 	creeperSInput->Clear();
 }
+
+std::string creeperFrame::Getcview(const char *file)
+{
+	std::ifstream cview;
+	std::string catid, baseurl;
+	cview.open(file);
+
+	if( !cview.is_open() )
+	{
+		return "Error";
+	}
+	while(cview >> catid)
+	{
+		size_t pos = catid.find("cview(");
+		if( pos != std::string::npos )
+		{
+			catid = catid.substr(pos);
+			size_t pos1 = catid.find(",");
+			size_t pos2 = catid.find(")");
+			catid = catid.substr(pos1 + 1 , pos2 - pos1 - 1);
+			break;
+		}
+	}
+	if(catid=="4" ||
+		catid=="6" ||
+		catid=="12" ||
+		catid=="22" )
+			baseurl="http://www.8comic.com/show/cool-";
+	else if(catid=="1" ||
+			catid=="17" ||
+			catid=="19" ||
+			catid=="21" )
+			baseurl="http://www.8comic.com/show/cool-";
+	else if(catid=="2" ||
+			catid=="5" ||
+			catid=="7" ||
+			catid=="9" )
+			baseurl="http://www.8comic.com/show/cool-";
+	else if(catid=="10" ||
+			catid=="11" ||
+			catid=="13" ||
+			catid=="14" )
+			baseurl="http://www.8comic.com/show/best-manga-";
+	else if(catid=="3" ||
+			catid=="8" ||
+			catid=="15" ||
+			catid=="16" ||
+			catid=="18" ||
+			catid=="20" )
+			baseurl="http://www.8comic.com/show/best-manga-";
+	else
+	{
+		SetStatusText(_("Getcview Fail!"));
+	}
+
+	cview.close();
+	return baseurl;
+	/*
+	const char *host = "http://www.8comic.com/js/comicview.js";
+	const char *dest = "./tmp/comicview.js";
+	std::ifstream cview;
+	std::string tmp;
+	int k = 0;
+
+	if ( GetWebdata(host, dest) != 0)
+	{
+		SetStatusText(_("Getcview Fail!"));
+	}
+
+	cview.open(dest);
+
+	if( !cview.is_open() )
+	{
+		return;
+	}
+
+	while( cview >> tmp)
+	{
+		if( tmp.substr(0, 4) == "////")
+		{
+			k++;
+			if( k == 2)
+				break;
+		}
+		size_t pos = tmp.find("atid==");
+		if( pos != std::string::npos)
+		{
+			tmp = tmp.substr( pos + 6 );
+			for(int i=0; i<tmp.size(); i++)
+			{
+				if( (tmp[i] < '1') || (tmp[i] > '9') )
+				{
+					tmp = tmp.substr(0, i);
+				}
+			}
+		}
+		wxString ss(tmp.c_str(), wxConvUTF8);
+		wxMessageBox(ss);
+	}
+	cview.close();
+	*/
+}
+
 	/* Fetch html data using wxURL ==================
 	wxURL *creeperURL = new wxURL(_("http://www.8comic.com"));
 	if(creeperURL->GetError() == wxURL_NOERR)
