@@ -47,6 +47,7 @@ class creeperFrame: public wxFrame
         void OnAbout(wxCommandEvent& event);
         void SearchBtn(wxCommandEvent& event);
         void SocketEvn(wxSocketEvent& event);
+		void GetWebdata(const char *, const char *);
 
         wxStaticText *creeperContent;
 		wxPanel *creeperPanel;

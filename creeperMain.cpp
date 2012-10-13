@@ -132,36 +132,7 @@ void creeperFrame::OnAbout(wxCommandEvent &event)/*{{{*/
 
 void creeperFrame::SearchBtn(wxCommandEvent& event)/*{{{*/
 {
-	CURL *creeperHTTP;
-	CURLcode req;
-	const char* host = "http://www.8comic.com";
-	char err[CURL_ERROR_SIZE];
-	FILE *userfile;
-
-	userfile = fopen("./tmp/creeperHtml", "w+");
-	userdata = "";
-	creeperHTTP = curl_easy_init();
-	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEFUNCTION, NULL);
-	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEDATA, userfile);
-	curl_easy_setopt(creeperHTTP, CURLOPT_ERRORBUFFER, err);
-	curl_easy_setopt(creeperHTTP, CURLOPT_URL, host);
-	SetStatusText(_("Curl Loading."));
-	req = curl_easy_perform(creeperHTTP);
-
-	if(req != 0)
-	{
-		wxMessageBox( wxString::FromUTF8(err) );
-		SetStatusText(_("Curl Fail!"));
-		curl_easy_cleanup(creeperHTTP);
-		return;
-	}
-	else
-	{
-		SetStatusText(_("Curl success!"));
-	}
-
-	curl_easy_cleanup(creeperHTTP);
-	fclose( userfile );
+	GetWebdata("http://www.8comic.com", "./tmp/creeperHtml");
 }/*}}}*/
 
 void creeperFrame::SocketEvn(wxSocketEvent& event)/*{{{*/
@@ -178,6 +149,39 @@ void creeperFrame::SocketEvn(wxSocketEvent& event)/*{{{*/
 		SetStatusText(_("Connect Closed!"));
 	}
 }/*}}}*/
+
+void creeperFrame::GetWebdata(const char *host, const char *path)
+{
+	CURL *creeperHTTP;
+	CURLcode req;
+	char err[CURL_ERROR_SIZE];
+	FILE *userfile;
+
+	userfile = fopen(path, "w+");
+	userdata = "";
+	creeperHTTP = curl_easy_init();
+	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEFUNCTION, NULL);
+	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEDATA, userfile);
+	curl_easy_setopt(creeperHTTP, CURLOPT_ERRORBUFFER, err);
+	curl_easy_setopt(creeperHTTP, CURLOPT_URL, host);
+	SetStatusText(_("Curl Loading."));
+	req = curl_easy_perform(creeperHTTP);
+
+	if(req != 0)
+	{
+		wxMessageBox( wxString::FromUTF8(err) );
+		SetStatusText(_("Curl Fail!"));
+		curl_easy_cleanup(creeperHTTP);
+		return ;
+	}
+	else
+	{
+		SetStatusText(_("Curl success!"));
+	}
+
+	curl_easy_cleanup(creeperHTTP);
+	fclose( userfile );
+}
 
 size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
 {
