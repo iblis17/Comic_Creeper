@@ -54,6 +54,8 @@ BEGIN_EVENT_TABLE(creeperFrame, wxFrame)/*{{{*/
     EVT_MENU(idMenuAbout, creeperFrame::OnAbout)
     EVT_BUTTON(idSearchBtn, creeperFrame::SearchBtn)
     EVT_SOCKET(idSocket, creeperFrame::SocketEvn)
+    EVT_TEXT_ENTER(idSInput, creeperFrame::SearchBtn)
+    EVT_BUTTON(idClearBtn, creeperFrame::ClearBtn)
 END_EVENT_TABLE()/*}}}*/
 
 creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
@@ -95,16 +97,27 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 								0, wxDefaultValidator, _("SearchBtn"));
 
 	creeperSInput = new wxTextCtrl(creeperPanel, idSInput, _(""),
-								wxDefaultPosition, wxSize(150, -1));
+								wxDefaultPosition, wxSize(100, -1));
+	creeperSInput->SetMaxLength(5);
+
+	creeperClearBtn = new wxButton(creeperPanel, idClearBtn, _("Clear"),
+								wxDefaultPosition, wxDefaultSize);
+
+	creeperFileList = new wxStaticText(creeperPanel, idFileList, _(""));
 
 	wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
 	vbox->Add(NULL, 10);
 	hbox1->Add(creeperContent, 0, wxTOP, 2);
 	hbox1->Add(creeperSInput, 0, wxRIGHT | wxLEFT, 10);
-	hbox1->Add(creeperSearchBtn, 0, wxALIGN_RIGHT);
+	hbox1->Add(creeperSearchBtn, 0, wxRIGHT, 5);
+	hbox1->Add(creeperClearBtn, 0);
 	vbox->Add(hbox1, 0, wxLEFT | wxRIGHT, 10);
+	vbox->Add(NULL, 10);
+	hbox2->Add(creeperFileList, 1);
+	vbox->Add(hbox2, 1, wxEXPAND | wxRIGHT | wxLEFT, 10);
 	creeperPanel->SetSizer(vbox);
 
 	Centre();
@@ -132,7 +145,32 @@ void creeperFrame::OnAbout(wxCommandEvent &event)/*{{{*/
 
 void creeperFrame::SearchBtn(wxCommandEvent& event)/*{{{*/
 {
-	GetWebdata("http://www.8comic.com", "./tmp/creeperHtml");
+	if(creeperSInput->IsEmpty())
+	{
+		SetStatusText(_("Please input ComicID."));
+		return;
+	}
+
+	wxString Url(_("http://www.8comic.com/html/"));
+	wxString DestFile(_("./tmp/"));
+
+	Url += creeperSInput->GetValue() + _(".html");
+	DestFile += creeperSInput->GetValue() + _(".html");
+
+	wxCharBuffer host = Url.ToUTF8();
+	wxCharBuffer dest = DestFile.ToUTF8();
+
+	if ( GetWebdata(host.data(), dest.data()) != 0)
+	{
+		creeperFileList->SetLabel( _("Fail to get:") + creeperFileList->GetLabel() + Url + _("\n"));
+	}
+	else
+	{
+		creeperFileList->SetLabel( creeperFileList->GetLabel() + DestFile + _("\n"));
+	}
+
+	//GetWebdata("http://www.8comic.com", "./tmp/creeperHtml");
+	//GetWebdata("http://www.8comic.com/html/7483.html", "./tmp/7483.html");
 }/*}}}*/
 
 void creeperFrame::SocketEvn(wxSocketEvent& event)/*{{{*/
@@ -150,7 +188,7 @@ void creeperFrame::SocketEvn(wxSocketEvent& event)/*{{{*/
 	}
 }/*}}}*/
 
-void creeperFrame::GetWebdata(const char *host, const char *path)
+int creeperFrame::GetWebdata(const char *host, const char *path)
 {
 	CURL *creeperHTTP;
 	CURLcode req;
@@ -172,7 +210,7 @@ void creeperFrame::GetWebdata(const char *host, const char *path)
 		wxMessageBox( wxString::FromUTF8(err) );
 		SetStatusText(_("Curl Fail!"));
 		curl_easy_cleanup(creeperHTTP);
-		return ;
+		return 1;
 	}
 	else
 	{
@@ -181,6 +219,7 @@ void creeperFrame::GetWebdata(const char *host, const char *path)
 
 	curl_easy_cleanup(creeperHTTP);
 	fclose( userfile );
+	return 0;
 }
 
 size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
@@ -190,6 +229,10 @@ size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
 	return (size*nmemb);
 }/*}}}*/
 
+void creeperFrame::ClearBtn(wxCommandEvent& event)
+{
+	creeperSInput->Clear();
+}
 	/* Fetch html data using wxURL ==================
 	wxURL *creeperURL = new wxURL(_("http://www.8comic.com"));
 	if(creeperURL->GetError() == wxURL_NOERR)

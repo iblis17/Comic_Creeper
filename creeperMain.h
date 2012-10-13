@@ -24,6 +24,7 @@
 
 #include <curl/curl.h>
 
+#include <iostream>
 
 class creeperFrame: public wxFrame
 {
@@ -40,20 +41,25 @@ class creeperFrame: public wxFrame
             idPanel,
             idSearchBtn,
             idSocket,
-            idSInput
+            idSInput,
+            idClearBtn,
+            idFileList
         };
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void SearchBtn(wxCommandEvent& event);
         void SocketEvn(wxSocketEvent& event);
-		void GetWebdata(const char *, const char *);
+		int GetWebdata(const char *, const char *);
+		void ClearBtn(wxCommandEvent& event);
 
         wxStaticText *creeperContent;
 		wxPanel *creeperPanel;
 		wxButton *creeperSearchBtn;
 		wxString creeperSocketData;
 		wxTextCtrl *creeperSInput;	// For Search Input
+		wxButton *creeperClearBtn;
+		wxStaticText *creeperFileList;
 
         DECLARE_EVENT_TABLE()
 };
