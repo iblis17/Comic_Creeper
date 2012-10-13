@@ -86,19 +86,26 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 							wxDefaultPosition, wxDefaultSize,
 							0, _("ContentPanel"));
 
-	//creeperContent = new wxStaticText(creeperPanel, idContent, _("Lable test!"),
+	creeperContent = new wxStaticText(creeperPanel, idContent, _("Comic ID"));
 	//							wxPoint(10, 10), wxSize(100, 100),
 	//							wxALIGN_LEFT, _("idContent"));
-	//creeperContent->Wrap(200);
 
-	//creeperSearchBtn = new wxButton(creeperPanel, idSearchBtn, _("Commit"),
-	//							wxPoint(200, 50), wxDefaultSize,
-	//							0, wxDefaultValidator, _("SearchBtn"));
+	creeperSearchBtn = new wxButton(creeperPanel, idSearchBtn, _("Commit"),
+								wxDefaultPosition, wxDefaultSize,
+								0, wxDefaultValidator, _("SearchBtn"));
 
-	wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+	creeperSInput = new wxTextCtrl(creeperPanel, idSInput, _(""),
+								wxDefaultPosition, wxSize(150, -1));
 
-	wxTextCtrl *creeperText = new wxTextCtrl(creeperPanel, -1, _(""), wxPoint(50, 50), wxSize(140, 32));
+	wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
+	vbox->Add(NULL, 10);
+	hbox1->Add(creeperContent, 0, wxTOP, 2);
+	hbox1->Add(creeperSInput, 0, wxRIGHT | wxLEFT, 10);
+	hbox1->Add(creeperSearchBtn, 0, wxALIGN_RIGHT);
+	vbox->Add(hbox1, 0, wxLEFT | wxRIGHT, 10);
+	creeperPanel->SetSizer(vbox);
 
 	Centre();
 }/*}}}*/
@@ -129,8 +136,9 @@ void creeperFrame::SearchBtn(wxCommandEvent& event)/*{{{*/
 	CURLcode req;
 	const char* host = "http://www.8comic.com";
 	char err[CURL_ERROR_SIZE];
-	FILE *userfile = fopen("/creeper/creeperHtml", "w+");
+	FILE *userfile;
 
+	userfile = fopen("./tmp/creeperHtml", "w+");
 	userdata = "";
 	creeperHTTP = curl_easy_init();
 	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEFUNCTION, NULL);

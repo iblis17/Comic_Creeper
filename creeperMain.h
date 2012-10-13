@@ -39,7 +39,8 @@ class creeperFrame: public wxFrame
             idContent,
             idPanel,
             idSearchBtn,
-            idSocket
+            idSocket,
+            idSInput
         };
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
@@ -51,6 +52,7 @@ class creeperFrame: public wxFrame
 		wxPanel *creeperPanel;
 		wxButton *creeperSearchBtn;
 		wxString creeperSocketData;
+		wxTextCtrl *creeperSInput;	// For Search Input
 
         DECLARE_EVENT_TABLE()
 };
