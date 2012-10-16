@@ -110,13 +110,13 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 	wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
-	vbox->Add(NULL, 10);
+	vbox->Add(-1, 10);
 	hbox1->Add(creeperContent, 0, wxTOP, 2);
 	hbox1->Add(creeperSInput, 0, wxRIGHT | wxLEFT, 10);
 	hbox1->Add(creeperSearchBtn, 0, wxRIGHT, 5);
 	hbox1->Add(creeperClearBtn, 0);
 	vbox->Add(hbox1, 0, wxLEFT | wxRIGHT, 10);
-	vbox->Add(NULL, 10);
+	vbox->Add(-1, 10);
 	hbox2->Add(creeperFileList, 1);
 	vbox->Add(hbox2, 1, wxEXPAND | wxRIGHT | wxLEFT, 10);
 	creeperPanel->SetSizer(vbox);
@@ -213,7 +213,7 @@ void creeperFrame::SocketEvn(wxSocketEvent& event)/*{{{*/
 	}
 }/*}}}*/
 
-int creeperFrame::GetWebdata(const char *host, const char *path)
+int creeperFrame::GetWebdata(const char *host, const char *path)/*{{{*/
 {
 	CURL *creeperHTTP;
 	CURLcode req;
@@ -245,7 +245,7 @@ int creeperFrame::GetWebdata(const char *host, const char *path)
 	curl_easy_cleanup(creeperHTTP);
 	fclose( userfile );
 	return 0;
-}
+}/*}}}*/
 
 size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
 {
@@ -254,12 +254,12 @@ size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
 	return (size*nmemb);
 }/*}}}*/
 
-void creeperFrame::ClearBtn(wxCommandEvent& event)
+void creeperFrame::ClearBtn(wxCommandEvent& event)/*{{{*/
 {
 	creeperSInput->Clear();
-}
+}/*}}}*/
 
-std::string creeperFrame::Getcview(const char *file)
+std::string creeperFrame::Getcview(const char *file)/*{{{*/
 {
 	std::ifstream cview;
 	std::string catid, baseurl;
@@ -315,51 +315,51 @@ std::string creeperFrame::Getcview(const char *file)
 
 	cview.close();
 	return baseurl;
-	/*
-	const char *host = "http://www.8comic.com/js/comicview.js";
-	const char *dest = "./tmp/comicview.js";
-	std::ifstream cview;
-	std::string tmp;
-	int k = 0;
+	
+	//const char *host = "http://www.8comic.com/js/comicview.js";
+	//const char *dest = "./tmp/comicview.js";
+	//std::ifstream cview;
+	//std::string tmp;
+	//int k = 0;
 
-	if ( GetWebdata(host, dest) != 0)
-	{
-		SetStatusText(_("Getcview Fail!"));
-	}
+	//if ( GetWebdata(host, dest) != 0)
+	//{
+	//	SetStatusText(_("Getcview Fail!"));
+	//}
 
-	cview.open(dest);
+	//cview.open(dest);
 
-	if( !cview.is_open() )
-	{
-		return;
-	}
+	//if( !cview.is_open() )
+	//{
+	//	return;
+	//}
 
-	while( cview >> tmp)
-	{
-		if( tmp.substr(0, 4) == "////")
-		{
-			k++;
-			if( k == 2)
-				break;
-		}
-		size_t pos = tmp.find("atid==");
-		if( pos != std::string::npos)
-		{
-			tmp = tmp.substr( pos + 6 );
-			for(int i=0; i<tmp.size(); i++)
-			{
-				if( (tmp[i] < '1') || (tmp[i] > '9') )
-				{
-					tmp = tmp.substr(0, i);
-				}
-			}
-		}
-		wxString ss(tmp.c_str(), wxConvUTF8);
-		wxMessageBox(ss);
-	}
-	cview.close();
-	*/
-}
+	//while( cview >> tmp)
+	//{
+	//	if( tmp.substr(0, 4) == "////")
+	//	{
+	//		k++;
+	//		if( k == 2)
+	//			break;
+	//	}
+	//	size_t pos = tmp.find("atid==");
+	//	if( pos != std::string::npos)
+	//	{
+	//		tmp = tmp.substr( pos + 6 );
+	//		for(int i=0; i<tmp.size(); i++)
+	//		{
+	//			if( (tmp[i] < '1') || (tmp[i] > '9') )
+	//			{
+	//				tmp = tmp.substr(0, i);
+	//			}
+	//		}
+	//	}
+	//	wxString ss(tmp.c_str(), wxConvUTF8);
+	//	wxMessageBox(ss);
+	//}
+	//cview.close();
+	
+}/*}}}*/
 
 	/* Fetch html data using wxURL ==================
 	wxURL *creeperURL = new wxURL(_("http://www.8comic.com"));

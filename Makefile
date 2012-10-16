@@ -1,5 +1,6 @@
 OBJDIR=./obj/
 BINDIR=./bin/
+TMPDIR=./tmp/
 LIBS=`curl-config --libs` `wx-config --libs`
 CFLAGS=`wx-config --cppflags`
 
@@ -13,4 +14,4 @@ creeperMain: creeperMain.cpp
 	g++ $(LIBS) $(CFLAGS) -c creeperMain.cpp -o $(OBJDIR)/creeperMain.o
 
 init:
-	mkdir -p $(OBJDIR) $(BINDIR)
+	mkdir -p $(OBJDIR) $(BINDIR) $(TMPDIR)
