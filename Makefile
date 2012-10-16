@@ -1,5 +1,5 @@
-OBJDIR=./obj/Release
-BINDIR=./bin/Release
+OBJDIR=./obj/
+BINDIR=./bin/
 LIBS=`curl-config --libs` `wx-config --libs`
 CFLAGS=`wx-config --cppflags`
 
@@ -11,3 +11,6 @@ creeperApp: creeperApp.cpp
 
 creeperMain: creeperMain.cpp
 	g++ $(LIBS) $(CFLAGS) -c creeperMain.cpp -o $(OBJDIR)/creeperMain.o
+
+init:
+	mkdir -p $(OBJDIR) $(BINDIR)
