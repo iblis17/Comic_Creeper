@@ -1,6 +1,6 @@
-OBJDIR=./obj/
-BINDIR=./bin/
-TMPDIR=./tmp/
+OBJDIR=./obj
+BINDIR=./bin
+TMPDIR=./tmp
 LIBS=`curl-config --libs` `wx-config --libs`
 CFLAGS=`wx-config --cppflags`
 
