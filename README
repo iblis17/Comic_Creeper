@@ -3,3 +3,6 @@ Comic Creeper
 dependency:
 	wxWidget-2.8
 	libcurl-7.21.2 +
+
+Installation:
+	$ make init all
