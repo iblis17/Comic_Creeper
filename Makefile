@@ -1,8 +1,8 @@
 OBJDIR=./obj
 BINDIR=./bin
 TMPDIR=./tmp
-LIBS=`curl-config --libs` `wx-config --libs`
-CFLAGS=`wx-config --cppflags`
+LIBS=`curl-config --libs` `wx-config --libs` `pkg-config --libs libxml++-2.6`
+CFLAGS=`wx-config --cppflags` `pkg-config --cflags libxml++-2.6`
 
 all: creeperApp creeperMain
 	g++ $(LIBS) $(CFLAGS) $(OBJDIR)/creeperMain.o $(OBJDIR)/creeperApp.o -o $(BINDIR)/creeper

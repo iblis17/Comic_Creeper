@@ -14,17 +14,19 @@
     #include <wx/wx.h>
 #endif
 
-#include "creeperApp.h"
-#include <wx/stattext.h>
-#include <wx/gdicmn.h>
-#include <wx/sstream.h>
-#include <wx/socket.h>
-#include <wx/sckstrm.h>
+#include	"creeperApp.h"
+#include	<wx/stattext.h>
+#include	<wx/gdicmn.h>
+#include	<wx/sstream.h>
+#include	<wx/socket.h>
+#include	<wx/sckstrm.h>
 
-#include <curl/curl.h>
+#include	<curl/curl.h>
 
-#include <string>
-#include <fstream>
+#include	<string>
+#include	<fstream>
+
+#include	<iconv.h>
 
 class creeperFrame: public wxFrame
 {
@@ -53,6 +55,8 @@ class creeperFrame: public wxFrame
 		int GetWebdata(const char *, const char *);
 		void ClearBtn(wxCommandEvent& event);
 		std::string Getcview(const char *file);
+		void GetImgCode(const char*);
+		void GetComicIndex(const char*);
 
         wxStaticText *creeperContent;
 		wxPanel *creeperPanel;

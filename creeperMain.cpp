@@ -194,6 +194,11 @@ void creeperFrame::SearchBtn(wxCommandEvent& event)/*{{{*/
 
 	wxString ts(DestCode.c_str(), wxConvUTF8);
 	creeperFileList->SetLabel( creeperFileList->GetLabel() + ts + _("\n"));
+
+	GetComicIndex( dest.data() );
+
+	GetImgCode( DestCode.c_str() );
+
 	//GetWebdata("http://www.8comic.com", "./tmp/creeperHtml");
 	//GetWebdata("http://www.8comic.com/html/7483.html", "./tmp/7483.html");
 }/*}}}*/
@@ -267,6 +272,7 @@ std::string creeperFrame::Getcview(const char *file)/*{{{*/
 
 	if( !cview.is_open() )
 	{
+		SetStatusText(_("Open File Error!"));
 		return "Error";
 	}
 	while(cview >> catid)
@@ -361,6 +367,91 @@ std::string creeperFrame::Getcview(const char *file)/*{{{*/
 	
 }/*}}}*/
 
+void creeperFrame::GetImgCode(const char *file)/*{{{*/
+{
+	std::fstream imgcode;
+	std::string tmp, codes = "";
+	int i;
+
+	imgcode.open(file);	
+	if( !imgcode.is_open() )
+	{
+		SetStatusText(_("Open File Error!"));
+		return ;
+	}
+
+	i = 0;
+	while( imgcode >> tmp )
+	{
+		size_t pos = tmp.find("codes=\"");
+		if( pos != std::string::npos )
+		{
+			i++;
+		}
+
+		if( i == 1 )
+		{
+			codes += tmp;
+			codes += " ";
+			
+			if( (pos = tmp.find(";")) != std::string::npos )
+			{
+				break;
+			}
+		}
+	}
+
+
+	//normalizing the codes
+	codes = codes.substr(7);
+	//wxString ss(codes.c_str(), wxConvUTF8);
+	//wxMessageBox(ss);
+	
+	imgcode.close();
+}/*}}}*/
+
+void creeperFrame::GetComicIndex(const char *file)/*{{{*/
+{
+	std::fstream index;
+	std::string tmp, indexString = "";
+	
+	index.open(file);
+	if( !index.is_open() )
+	{
+		SetStatusText(_("Open File Error!"));
+		return;
+	}
+	
+	while( index >> tmp )
+	{
+		size_t pos = tmp.find("<table");
+		if( pos != std::string::npos)
+		{
+			index >> tmp;
+			if( (pos = tmp.find("id=\"rp_ctl00_comiclist11_dl\"")) != std::string::npos )
+			{
+				while( index >> tmp )
+				{
+					if( (pos = tmp.find("</table>")) != std::string::npos )
+					{
+						break;
+					}
+					size_t anchor = tmp.find("</a>");
+					if( anchor != std::string::npos )
+					{
+						//std::cout << tmp << " ";
+						indexString += ( tmp + " " );
+					}
+				}
+			}
+		}
+	}
+
+	std::cout << indexString << std::endl;
+	index.close();
+}/*}}}*/
+
+/*{{{*/
 	/* Fetch html data using wxURL ==================
 	wxURL *creeperURL = new wxURL(_("http://www.8comic.com"));
 	if(creeperURL->GetError() == wxURL_NOERR)
@@ -377,7 +468,10 @@ std::string creeperFrame::Getcview(const char *file)/*{{{*/
 		}
 		delete in;
 	}
-	*//*}}}*/
+	*/
+/*}}}*/
+
+/*{{{*/
 	/* Fetch html dada using wxHTTP =================
 	wxHTTP creeperHTTP;
 	creeperHTTP.SetHeader(_("Content-Type"), _("text/html;"));
@@ -415,4 +509,5 @@ std::string creeperFrame::Getcview(const char *file)/*{{{*/
 	in->Read(outdata);
 
 	wxMessageBox(data);
-	*//*}}}*/
+	*/
+/*}}}*/
