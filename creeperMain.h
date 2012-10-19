@@ -57,6 +57,7 @@ class creeperFrame: public wxFrame
 		std::string Getcview(const char *file);
 		void GetImgCode(const char*);
 		void GetComicIndex(const char*);
+		void convert(const char*, const char*, char*, size_t, char*, size_t);
 
         wxStaticText *creeperContent;
 		wxPanel *creeperPanel;

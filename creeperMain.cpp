@@ -321,7 +321,7 @@ std::string creeperFrame::Getcview(const char *file)/*{{{*/
 
 	cview.close();
 	return baseurl;
-	
+
 	//const char *host = "http://www.8comic.com/js/comicview.js";
 	//const char *dest = "./tmp/comicview.js";
 	//std::ifstream cview;
@@ -364,7 +364,7 @@ std::string creeperFrame::Getcview(const char *file)/*{{{*/
 	//	wxMessageBox(ss);
 	//}
 	//cview.close();
-	
+
 }/*}}}*/
 
 void creeperFrame::GetImgCode(const char *file)/*{{{*/
@@ -373,7 +373,7 @@ void creeperFrame::GetImgCode(const char *file)/*{{{*/
 	std::string tmp, codes = "";
 	int i;
 
-	imgcode.open(file);	
+	imgcode.open(file);
 	if( !imgcode.is_open() )
 	{
 		SetStatusText(_("Open File Error!"));
@@ -393,7 +393,7 @@ void creeperFrame::GetImgCode(const char *file)/*{{{*/
 		{
 			codes += tmp;
 			codes += " ";
-			
+
 			if( (pos = tmp.find(";")) != std::string::npos )
 			{
 				break;
@@ -406,7 +406,7 @@ void creeperFrame::GetImgCode(const char *file)/*{{{*/
 	codes = codes.substr(7);
 	//wxString ss(codes.c_str(), wxConvUTF8);
 	//wxMessageBox(ss);
-	
+
 	imgcode.close();
 }/*}}}*/
 
@@ -414,14 +414,14 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 {
 	std::fstream index;
 	std::string tmp, indexString = "";
-	
+
 	index.open(file);
 	if( !index.is_open() )
 	{
 		SetStatusText(_("Open File Error!"));
 		return;
 	}
-	
+
 	while( index >> tmp )
 	{
 		size_t pos = tmp.find("<table");
@@ -447,9 +447,39 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 		}
 	}
 
-	std::cout << indexString << std::endl;
+	size_t osize = indexString.size()*2;
+	char *indexConv = (char *)malloc(osize);
+	convert("UTF-8", "BIG5", (char *)indexString.c_str(), indexString.size(), indexConv, osize);
+
+	//wxString ss = wxString::FromUTF8(indexConv);
+	//wxMessageBox(ss);
 	index.close();
 }/*}}}*/
+
+void creeperFrame::convert(const char *tocode, const char *fromcode,
+						char *input, size_t isize, char *output, size_t osize)
+{
+	char **pin = &input;
+	char **pout = &output;
+	iconv_t icd = iconv_open(tocode, fromcode);
+
+	memset(output, 0, osize);
+	if( icd == (iconv_t)-1 )
+	{
+		SetStatusText(_("iconv_open Error!"));
+		return ;
+	}
+
+	size_t num =  iconv(icd, pin, &isize, pout, &osize);
+	if( num == (size_t)-1 )
+	{
+		SetStatusText(_("iconv Error!"));
+		iconv_close(icd);
+		return;
+	}
+
+	iconv_close( icd );
+}
 
 /*{{{*/
 	/* Fetch html data using wxURL ==================
