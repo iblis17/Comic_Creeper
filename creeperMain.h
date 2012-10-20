@@ -73,7 +73,9 @@ class creeperFrame: public wxFrame
 		wxStaticText *creeperContent;
 		wxStaticText *creeperFileList;
 		wxTextCtrl *creeperSInput;	// For Search Input
+		wxBoxSizer *vStatBox;
 		wxStaticBoxSizer *hIndexBox;
+		wxGridSizer *hIndexTable;
 		std::vector<int> idIndexBtn;	//Starting from 2000
 		static const int idIndexBtnBase;
 		std::vector<wxButton *> IndexBtn;

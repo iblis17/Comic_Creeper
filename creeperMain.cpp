@@ -114,7 +114,7 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 	wxBoxSizer *hStatBox1 = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *hStatBox2 = new wxStaticBoxSizer(wxHORIZONTAL, creeperPanel, _("Status log"));
 	hIndexBox = new wxStaticBoxSizer(wxHORIZONTAL, creeperPanel, _("Index"));
-	wxBoxSizer *vStatBox = new wxBoxSizer(wxVERTICAL);
+	vStatBox = new wxBoxSizer(wxVERTICAL);
 
 	vStatBox->Add(-1, 10);
 	hStatBox1->Add(creeperContent, 0, wxTOP, 2);
@@ -524,13 +524,13 @@ void creeperFrame::GetIndexBtn(wxString index)
 	}
 
 	hIndexBox->Clear(true);
+	hIndexTable = new wxGridSizer(4, 5, 5);
 	for(int i=0; i<IndexBtn.size(); i++)
 	{
-		hIndexBox->Add(IndexBtn[i], 0);
-		hIndexBox->RecalcSizes();
+		hIndexTable->Add(IndexBtn[i], 0);
 	}
-
-
+	hIndexBox->Add(hIndexTable);
+	vStatBox->RecalcSizes();
 }
 
 /*{{{*/
