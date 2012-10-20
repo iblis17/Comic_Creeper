@@ -25,6 +25,8 @@
 
 #include	<string>
 #include	<fstream>
+#include	<sstream>
+#include	<vector>
 
 #include	<iconv.h>
 
@@ -53,12 +55,13 @@ class creeperFrame: public wxFrame
         void OnAbout(wxCommandEvent& event);
         void SearchBtn(wxCommandEvent& event);
 		void ClearBtn(wxCommandEvent& event);
+		void GetIndexBtn(wxString);
         void SocketEvn(wxSocketEvent& event);
 		int GetWebdata(const char *, const char *);
 		std::string Getcview(const char *file);
 		void GetImgCode(const char*);
 		void GetComicIndex(const char*);
-		void convert(const char*, const char*, char*, size_t, char*, size_t);
+		bool convert(const char*, const char*, char*, size_t, char*, size_t);
 
 		wxPanel *creeperPanel;
 		wxPanel *creeperStatusPanel;
@@ -70,6 +73,10 @@ class creeperFrame: public wxFrame
 		wxStaticText *creeperContent;
 		wxStaticText *creeperFileList;
 		wxTextCtrl *creeperSInput;	// For Search Input
+		wxStaticBoxSizer *hIndexBox;
+		std::vector<int> idIndexBtn;	//Starting from 2000
+		static const int idIndexBtnBase;
+		std::vector<wxButton *> IndexBtn;
 
 
         DECLARE_EVENT_TABLE()

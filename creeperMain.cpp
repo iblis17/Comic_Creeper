@@ -21,8 +21,7 @@
 enum wxbuildinfoformat {
     short_f, long_f };
 
-// Fetch Data from Curl
-std::string userdata;
+const int creeperFrame::idIndexBtnBase = 2000;
 
 wxString wxbuildinfo(wxbuildinfoformat format)/*{{{*/
 {
@@ -114,6 +113,7 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 	wxBoxSizer *vMainBox = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *hStatBox1 = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *hStatBox2 = new wxStaticBoxSizer(wxHORIZONTAL, creeperPanel, _("Status log"));
+	hIndexBox = new wxStaticBoxSizer(wxHORIZONTAL, creeperPanel, _("Index"));
 	wxBoxSizer *vStatBox = new wxBoxSizer(wxVERTICAL);
 
 	vStatBox->Add(-1, 10);
@@ -122,6 +122,8 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 	hStatBox1->Add(creeperSearchBtn, 0, wxRIGHT, 5);
 	hStatBox1->Add(creeperClearBtn, 0);
 	vStatBox->Add(hStatBox1, 0, wxLEFT | wxRIGHT, 10);
+	vStatBox->Add(-1, 10);
+	vStatBox->Add(hIndexBox, 1, wxEXPAND | wxRIGHT | wxLEFT, 10);
 	vStatBox->Add(-1, 10);
 	hStatBox2->Add(creeperFileList, 1);
 	vStatBox->Add(hStatBox2, 1, wxEXPAND | wxRIGHT | wxLEFT, 10);
@@ -236,7 +238,6 @@ int creeperFrame::GetWebdata(const char *host, const char *path)/*{{{*/
 	FILE *userfile;
 
 	userfile = fopen(path, "w+");
-	userdata = "";
 	creeperHTTP = curl_easy_init();
 	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEFUNCTION, NULL);
 	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEDATA, userfile);
@@ -272,6 +273,8 @@ size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
 void creeperFrame::ClearBtn(wxCommandEvent& event)/*{{{*/
 {
 	creeperSInput->Clear();
+	hIndexBox->Clear(true);
+	creeperFileList->SetLabel(_(""));
 }/*}}}*/
 
 std::string creeperFrame::Getcview(const char *file)/*{{{*/
@@ -438,7 +441,8 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 		if( pos != std::string::npos)
 		{
 			index >> tmp;
-			if( (pos = tmp.find("id=\"rp_ctl00_comiclist11_dl\"")) != std::string::npos )
+			if( (tmp.find("id=\"rp_ctl00_comiclist11_dl\"") != std::string::npos) ||
+				( tmp.find("rp_ctl00_comiclist2_dl") != std::string::npos) )
 			{
 				while( index >> tmp )
 				{
@@ -449,7 +453,7 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 					size_t anchor = tmp.find("</a>");
 					if( anchor != std::string::npos )
 					{
-						indexString += ( tmp.substr(0, anchor) + " " );
+						indexString += ( tmp.substr(0, anchor) + "|" );
 					}
 				}
 			}
@@ -458,14 +462,20 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 
 	size_t osize = indexString.size()*2;
 	char *output = (char *)malloc(osize);
-	convert("UTF-8", "BIG5", (char *)indexString.c_str(), indexString.size(), output, osize);
+	if( convert("UTF-8", "BIG5", (char *)indexString.c_str(), indexString.size(), output, osize) == false)
+	{
+		return;
+	}
 
 	indexConv = wxString::FromUTF8(output);
 	//wxMessageBox(indexConv);
+
+	GetIndexBtn(indexConv);
+
 	index.close();
 }/*}}}*/
 
-void creeperFrame::convert(const char *tocode, const char *fromcode,
+bool creeperFrame::convert(const char *tocode, const char *fromcode,
 						char *input, size_t isize, char *output, size_t osize)
 {
 	char **pin = &input;
@@ -476,7 +486,7 @@ void creeperFrame::convert(const char *tocode, const char *fromcode,
 	if( icd == (iconv_t)-1 )
 	{
 		SetStatusText(_("iconv_open Error!"));
-		return ;
+		return false;
 	}
 
 	size_t num =  iconv(icd, pin, &isize, pout, &osize);
@@ -484,10 +494,43 @@ void creeperFrame::convert(const char *tocode, const char *fromcode,
 	{
 		SetStatusText(_("iconv Error!"));
 		iconv_close(icd);
-		return;
+		return false;
 	}
 
 	iconv_close( icd );
+	return true;
+}
+
+void creeperFrame::GetIndexBtn(wxString index)
+{
+	std::string tmp = "", src(index.mb_str(wxConvUTF8)) ;
+	std::stringstream tmpss(src);
+
+	idIndexBtn.clear();
+	for(int i=0; i<src.size(); i++)
+	{
+		if(src[i] == '|')
+		{
+			idIndexBtn.push_back(idIndexBtnBase + i);
+		}
+	}
+
+	IndexBtn.clear();
+	for(int i=0; getline(tmpss, tmp, '|') ; i++)
+	{
+		IndexBtn.push_back( new wxButton(creeperStatusPanel, idIndexBtn[i],
+							wxString(tmp.c_str(), wxConvUTF8) ) );
+		//IndexBtn[i]->SetLabel(wxString(tmp.c_str(), wxConvUTF8));
+	}
+
+	hIndexBox->Clear(true);
+	for(int i=0; i<IndexBtn.size(); i++)
+	{
+		hIndexBox->Add(IndexBtn[i], 0);
+		hIndexBox->RecalcSizes();
+	}
+
+
 }
 
 /*{{{*/
