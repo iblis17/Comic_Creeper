@@ -59,7 +59,7 @@ BEGIN_EVENT_TABLE(creeperFrame, wxFrame)/*{{{*/
 END_EVENT_TABLE()/*}}}*/
 
 creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
-    : wxFrame(frame, -1, title, wxPoint(-1, -1), wxSize(450, 300))
+    : wxFrame(frame, -1, title, wxPoint(-1, -1), wxSize(700, 300))
 {
 #if wxUSE_MENUS
     // create a menu bar
@@ -88,38 +88,48 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 							wxDefaultPosition, wxDefaultSize,
 							0, _("ContentPanel"));
 
-	creeperContent = new wxStaticText(creeperPanel, idContent, _("Comic ID"));
+	creeperStatusPanel = new wxPanel(creeperPanel, idStatusPanel,
+							wxDefaultPosition, wxDefaultSize);
+
+	creeperContent = new wxStaticText(creeperStatusPanel, idContent, _("Comic ID"));
 	//							wxPoint(10, 10), wxSize(100, 100),
 	//							wxALIGN_LEFT, _("idContent"));
 
-	creeperSearchBtn = new wxButton(creeperPanel, idSearchBtn, _("Commit"),
+	creeperSearchBtn = new wxButton(creeperStatusPanel, idSearchBtn, _("Commit"),
 								wxDefaultPosition, wxDefaultSize,
 								0, wxDefaultValidator, _("SearchBtn"));
 
-	creeperSInput = new wxTextCtrl(creeperPanel, idSInput, _(""),
-								wxDefaultPosition, wxSize(100, -1));
+	creeperSInput = new wxTextCtrl(creeperStatusPanel, idSInput, _(""),
+								wxDefaultPosition, wxSize(100, -1),
+								wxTE_PROCESS_ENTER);
 	creeperSInput->SetMaxLength(5);
 
-	creeperClearBtn = new wxButton(creeperPanel, idClearBtn, _("Clear"),
+	creeperClearBtn = new wxButton(creeperStatusPanel, idClearBtn, _("Clear"),
 								wxDefaultPosition, wxDefaultSize);
 
-	creeperFileList = new wxStaticText(creeperPanel, idFileList, _(""));
+	creeperFileList = new wxStaticText(creeperStatusPanel, idFileList, _(""));
 	TmpDir = _("./tmp/");
 
-	wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *hMainBox1 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *vMainBox = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *hStatBox1 = new wxBoxSizer(wxHORIZONTAL);
+	wxStaticBoxSizer *hStatBox2 = new wxStaticBoxSizer(wxHORIZONTAL, creeperPanel, _("Status log"));
+	wxBoxSizer *vStatBox = new wxBoxSizer(wxVERTICAL);
 
-	vbox->Add(-1, 10);
-	hbox1->Add(creeperContent, 0, wxTOP, 2);
-	hbox1->Add(creeperSInput, 0, wxRIGHT | wxLEFT, 10);
-	hbox1->Add(creeperSearchBtn, 0, wxRIGHT, 5);
-	hbox1->Add(creeperClearBtn, 0);
-	vbox->Add(hbox1, 0, wxLEFT | wxRIGHT, 10);
-	vbox->Add(-1, 10);
-	hbox2->Add(creeperFileList, 1);
-	vbox->Add(hbox2, 1, wxEXPAND | wxRIGHT | wxLEFT, 10);
-	creeperPanel->SetSizer(vbox);
+	vStatBox->Add(-1, 10);
+	hStatBox1->Add(creeperContent, 0, wxTOP, 2);
+	hStatBox1->Add(creeperSInput, 0, wxRIGHT | wxLEFT, 10);
+	hStatBox1->Add(creeperSearchBtn, 0, wxRIGHT, 5);
+	hStatBox1->Add(creeperClearBtn, 0);
+	vStatBox->Add(hStatBox1, 0, wxLEFT | wxRIGHT, 10);
+	vStatBox->Add(-1, 10);
+	hStatBox2->Add(creeperFileList, 1);
+	vStatBox->Add(hStatBox2, 1, wxEXPAND | wxRIGHT | wxLEFT, 10);
+	creeperStatusPanel->SetSizer(vStatBox);
+
+	hMainBox1->Add(creeperStatusPanel, 1, wxEXPAND);
+	vMainBox->Add(hMainBox1, 1, wxEXPAND | wxALL, 5);
+	creeperPanel->SetSizer(vMainBox);
 
 	Centre();
 }/*}}}*/
@@ -439,8 +449,7 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 					size_t anchor = tmp.find("</a>");
 					if( anchor != std::string::npos )
 					{
-						//std::cout << tmp << " ";
-						indexString += ( tmp + " " );
+						indexString += ( tmp.substr(0, anchor) + " " );
 					}
 				}
 			}
@@ -448,11 +457,11 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 	}
 
 	size_t osize = indexString.size()*2;
-	char *indexConv = (char *)malloc(osize);
-	convert("UTF-8", "BIG5", (char *)indexString.c_str(), indexString.size(), indexConv, osize);
+	char *output = (char *)malloc(osize);
+	convert("UTF-8", "BIG5", (char *)indexString.c_str(), indexString.size(), output, osize);
 
-	//wxString ss = wxString::FromUTF8(indexConv);
-	//wxMessageBox(ss);
+	indexConv = wxString::FromUTF8(output);
+	//wxMessageBox(indexConv);
 	index.close();
 }/*}}}*/
 

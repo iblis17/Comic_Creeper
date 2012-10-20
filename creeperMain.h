@@ -41,32 +41,36 @@ class creeperFrame: public wxFrame
             idMenuAbout,
             idContent,
             idPanel,
+            idStatusPanel,
             idSearchBtn,
+			idClearBtn,
             idSocket,
             idSInput,
-            idClearBtn,
             idFileList
         };
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void SearchBtn(wxCommandEvent& event);
+		void ClearBtn(wxCommandEvent& event);
         void SocketEvn(wxSocketEvent& event);
 		int GetWebdata(const char *, const char *);
-		void ClearBtn(wxCommandEvent& event);
 		std::string Getcview(const char *file);
 		void GetImgCode(const char*);
 		void GetComicIndex(const char*);
 		void convert(const char*, const char*, char*, size_t, char*, size_t);
 
-        wxStaticText *creeperContent;
 		wxPanel *creeperPanel;
+		wxPanel *creeperStatusPanel;
 		wxButton *creeperSearchBtn;
-		wxString creeperSocketData;
-		wxTextCtrl *creeperSInput;	// For Search Input
 		wxButton *creeperClearBtn;
-		wxStaticText *creeperFileList;
+		wxString creeperSocketData;
 		wxString TmpDir;
+		wxString indexConv;
+		wxStaticText *creeperContent;
+		wxStaticText *creeperFileList;
+		wxTextCtrl *creeperSInput;	// For Search Input
+
 
         DECLARE_EVENT_TABLE()
 };
