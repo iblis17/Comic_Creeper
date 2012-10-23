@@ -475,7 +475,7 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 	index.close();
 }/*}}}*/
 
-bool creeperFrame::convert(const char *tocode, const char *fromcode,
+bool creeperFrame::convert(const char *tocode, const char *fromcode,/*{{{*/
 						char *input, size_t isize, char *output, size_t osize)
 {
 	char **pin = &input;
@@ -499,9 +499,9 @@ bool creeperFrame::convert(const char *tocode, const char *fromcode,
 
 	iconv_close( icd );
 	return true;
-}
+}/*}}}*/
 
-void creeperFrame::GetIndexBtn(wxString index)
+void creeperFrame::GetIndexBtn(wxString index)/*{{{*/
 {
 	std::string tmp = "", src(index.mb_str(wxConvUTF8)) ;
 	std::stringstream tmpss(src);
@@ -531,7 +531,7 @@ void creeperFrame::GetIndexBtn(wxString index)
 	}
 	hIndexBox->Add(hIndexTable);
 	vStatBox->RecalcSizes();
-}
+}/*}}}*/
 
 /*{{{*/
 	/* Fetch html data using wxURL ==================
