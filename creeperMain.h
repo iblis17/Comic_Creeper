@@ -55,7 +55,7 @@ class creeperFrame: public wxFrame
         void OnAbout(wxCommandEvent& event);
         void SearchBtn(wxCommandEvent& event);
 		void ClearBtn(wxCommandEvent& event);
-		void GetIndexBtn(wxString);
+		void GetIndexBtn(std::string);
         void SocketEvn(wxSocketEvent& event);
 		int GetWebdata(const char *, const char *);
 		std::string Getcview(const char *file);

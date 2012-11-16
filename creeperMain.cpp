@@ -179,6 +179,7 @@ void creeperFrame::SearchBtn(wxCommandEvent& event)/*{{{*/
 		creeperFileList->SetLabel( creeperFileList->GetLabel() + _("Fail to get:") + Url + _("\n"));
 		return;
 	}
+	ConvertFile(dest.data());
 
 	creeperFileList->SetLabel( creeperFileList->GetLabel() + DestFile + _("\n"));
 	CodeUrl = Getcview(dest.data());
@@ -203,6 +204,7 @@ void creeperFrame::SearchBtn(wxCommandEvent& event)/*{{{*/
 		creeperFileList->SetLabel( creeperFileList->GetLabel() + _("Fail to get:") + ts + _("\n"));
 		return;
 	}
+	ConvertFile(DestCode.c_str());
 
 	wxString ts(DestCode.c_str(), wxConvUTF8);
 	creeperFileList->SetLabel( creeperFileList->GetLabel() + ts + _("\n"));
@@ -460,17 +462,7 @@ void creeperFrame::GetComicIndex(const char *file)/*{{{*/
 		}
 	}
 
-	size_t osize = indexString.size()*2;
-	char *output = (char *)malloc(osize);
-	if( convert("UTF-8", "BIG5", (char *)indexString.c_str(), indexString.size(), output, osize) == false)
-	{
-		return;
-	}
-
-	indexConv = wxString::FromUTF8(output);
-	//wxMessageBox(indexConv);
-
-	GetIndexBtn(indexConv);
+	GetIndexBtn(indexString);
 
 	index.close();
 }/*}}}*/
@@ -501,9 +493,9 @@ bool creeperFrame::convert(const char *tocode, const char *fromcode,/*{{{*/
 	return true;
 }/*}}}*/
 
-void creeperFrame::GetIndexBtn(wxString index)/*{{{*/
+void creeperFrame::GetIndexBtn(std::string index)/*{{{*/
 {
-	std::string tmp = "", src(index.mb_str(wxConvUTF8)) ;
+	std::string tmp = "", src = index ;
 	std::stringstream tmpss(src);
 
 	idIndexBtn.clear();
