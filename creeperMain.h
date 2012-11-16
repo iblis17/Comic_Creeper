@@ -62,6 +62,7 @@ class creeperFrame: public wxFrame
 		void GetImgCode(const char*);
 		void GetComicIndex(const char*);
 		bool convert(const char*, const char*, char*, size_t, char*, size_t);
+		int ConvertFile(const char*);
 
 		wxPanel *creeperPanel;
 		wxPanel *creeperStatusPanel;

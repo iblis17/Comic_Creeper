@@ -533,6 +533,57 @@ void creeperFrame::GetIndexBtn(wxString index)/*{{{*/
 	vStatBox->RecalcSizes();
 }/*}}}*/
 
+int creeperFrame::ConvertFile(const char *file)
+{
+	std::fstream origin;
+	size_t buf;
+	char *InData, *OutData;
+
+	origin.open(file);
+	if( !origin.is_open() )
+	{
+		SetStatusText(_("Open File Error!"));
+		return 1;
+	}
+
+	origin.seekg(0, std::ios::end);
+	buf = origin.tellg();
+	buf++;
+	origin.seekg(0, std::ios::beg);
+	//wxMessageBox(wxString::Format(_("%d"), buf));
+
+	InData = new char[buf];
+	origin.read(InData, buf);
+	origin.close();
+
+	OutData = new char[buf*2];
+	convert("UTF-8", "BIG5", InData, buf, OutData, buf*2);
+	delete []InData;
+	//wxMessageBox(wxString::FromUTF8(OutData));
+
+	origin.open(file, std::ios::in | std::ios::out | std::ios::trunc);
+	if( !origin.is_open() )
+	{
+		SetStatusText(_("Open File Error!"));
+		return 1;
+	}
+
+	for(int i=buf*2; i>0; i-=5)
+	{
+		if( OutData[i] != '\0' )
+		{
+			buf = i + 5;
+			break;
+		}
+	}
+	origin.write(OutData, buf);
+
+	origin.close();
+	delete []OutData;
+
+	return 0;
+}
+
 /*{{{*/
 	/* Fetch html data using wxURL ==================
 	wxURL *creeperURL = new wxURL(_("http://www.8comic.com"));
