@@ -287,11 +287,19 @@ int creeperFrame::GetWebdata(wxString host, wxString path, int ConvFlag = 0)
     if(ConvFlag == 1)
     {
 		OutData = new char[buf*2];
-		convert("UTF-8", "BIG5", InData, buf, OutData, buf*2);
-		wxMessageBox(wxString::FromUTF8(OutData));
+		if( convert("UTF-8", "BIG5", InData, buf, OutData, buf*2) )
+		{
+			SetStatusText(_("Converting  Failed!"));
+			return -1;
+		}
+		//wxMessageBox(wxString::FromUTF8(OutData));
     }
+    else
+	{
+		wxMessageBox(wxString::FromUTF8(InData));
+	}
 
-    return 0;
+	  return 0;
 }
 
 size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
@@ -607,8 +615,8 @@ int creeperFrame::ConvertFile(const char *file)
 
 void creeperFrame::DebugBtn(wxCommandEvent& event)
 {
-    GetWebdata(_("www.8comic.com"), _("/html/5231.html"), 1);
-    //GetWebdata(_("www.google.com"), _("/"));
+    //GetWebdata(_("www.8comic.com"), _("/html/5231.html"), 1);
+    GetWebdata(_("www.google.com"), _("/"), 0);
     //GetWebdata(_("www.8comic.com"), _("/"), 1);
 }
 /*{{{*/
