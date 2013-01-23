@@ -20,6 +20,7 @@
 #include	<wx/sstream.h>
 #include	<wx/socket.h>
 #include	<wx/sckstrm.h>
+#include    <wx/protocol/http.h>
 
 #include	<curl/curl.h>
 
@@ -48,7 +49,8 @@ class creeperFrame: public wxFrame
 			idClearBtn,
             idSocket,
             idSInput,
-            idFileList
+            idFileList,
+            idDebugBtn
         };
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
@@ -56,8 +58,10 @@ class creeperFrame: public wxFrame
         void SearchBtn(wxCommandEvent& event);
 		void ClearBtn(wxCommandEvent& event);
 		void GetIndexBtn(std::string);
+		void DebugBtn(wxCommandEvent& event);
         void SocketEvn(wxSocketEvent& event);
 		int GetWebdata(const char *, const char *);
+		int GetWebdata(wxString, wxString, int);
 		std::string Getcview(const char *file);
 		void GetImgCode(const char*);
 		void GetComicIndex(const char*);
@@ -68,6 +72,7 @@ class creeperFrame: public wxFrame
 		wxPanel *creeperStatusPanel;
 		wxButton *creeperSearchBtn;
 		wxButton *creeperClearBtn;
+		wxButton *creeperDebugBtn;
 		wxString creeperSocketData;
 		wxString TmpDir;
 		wxString indexConv;

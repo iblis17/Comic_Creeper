@@ -55,6 +55,7 @@ BEGIN_EVENT_TABLE(creeperFrame, wxFrame)/*{{{*/
     EVT_SOCKET(idSocket, creeperFrame::SocketEvn)
     EVT_TEXT_ENTER(idSInput, creeperFrame::SearchBtn)
     EVT_BUTTON(idClearBtn, creeperFrame::ClearBtn)
+    EVT_BUTTON(idDebugBtn, creeperFrame::DebugBtn)
 END_EVENT_TABLE()/*}}}*/
 
 creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
@@ -98,6 +99,10 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 								wxDefaultPosition, wxDefaultSize,
 								0, wxDefaultValidator, _("SearchBtn"));
 
+    creeperDebugBtn = new wxButton(creeperStatusPanel, idDebugBtn, _("Debug"),
+                                wxDefaultPosition, wxDefaultSize,
+                                0, wxDefaultValidator, _("Debug"));
+
 	creeperSInput = new wxTextCtrl(creeperStatusPanel, idSInput, _(""),
 								wxDefaultPosition, wxSize(100, -1),
 								wxTE_PROCESS_ENTER);
@@ -120,6 +125,7 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 	hStatBox1->Add(creeperContent, 0, wxTOP, 2);
 	hStatBox1->Add(creeperSInput, 0, wxRIGHT | wxLEFT, 10);
 	hStatBox1->Add(creeperSearchBtn, 0, wxRIGHT, 5);
+    hStatBox1->Add(creeperDebugBtn, 0, wxRIGHT, 5);
 	hStatBox1->Add(creeperClearBtn, 0);
 	vStatBox->Add(hStatBox1, 0, wxLEFT | wxRIGHT, 10);
 	vStatBox->Add(-1, 10);
@@ -264,6 +270,29 @@ int creeperFrame::GetWebdata(const char *host, const char *path)/*{{{*/
 	fclose( userfile );
 	return 0;
 }/*}}}*/
+
+int creeperFrame::GetWebdata(wxString host, wxString path, int ConvFlag = 0)
+{
+    wxHTTP *get = new wxHTTP;
+    size_t buf;
+	char *InData, *OutData;
+    // connet to the host/path
+    get->Connect(host);
+    wxInputStream *in = get->GetInputStream(path);
+    //store response data in 'InData'
+    buf = in->GetSize();
+    InData = new char[buf];
+    in->Read(InData, buf);
+    //Converting data from big5 to utf8, if needed
+    if(ConvFlag == 1)
+    {
+		OutData = new char[buf*2];
+		convert("UTF-8", "BIG5", InData, buf, OutData, buf*2);
+		wxMessageBox(wxString::FromUTF8(OutData));
+    }
+
+    return 0;
+}
 
 size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
 {
@@ -499,7 +528,7 @@ void creeperFrame::GetIndexBtn(std::string index)/*{{{*/
 	std::stringstream tmpss(src);
 
 	idIndexBtn.clear();
-	for(int i=0; i<src.size(); i++)
+	for(size_t i=0; i<src.size(); i++)
 	{
 		if(src[i] == '|')
 		{
@@ -517,7 +546,7 @@ void creeperFrame::GetIndexBtn(std::string index)/*{{{*/
 
 	hIndexBox->Clear(true);
 	hIndexTable = new wxGridSizer(4, 5, 5);
-	for(int i=0; i<IndexBtn.size(); i++)
+	for(size_t i=0; i<IndexBtn.size(); i++)
 	{
 		hIndexTable->Add(IndexBtn[i], 0);
 	}
@@ -576,6 +605,12 @@ int creeperFrame::ConvertFile(const char *file)
 	return 0;
 }
 
+void creeperFrame::DebugBtn(wxCommandEvent& event)
+{
+    GetWebdata(_("www.8comic.com"), _("/html/5231.html"), 1);
+    //GetWebdata(_("www.google.com"), _("/"));
+    //GetWebdata(_("www.8comic.com"), _("/"), 1);
+}
 /*{{{*/
 	/* Fetch html data using wxURL ==================
 	wxURL *creeperURL = new wxURL(_("http://www.8comic.com"));
