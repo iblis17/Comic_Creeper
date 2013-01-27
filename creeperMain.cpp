@@ -246,11 +246,72 @@ int creeperFrame::GetWebdata(wxString host, wxString URLpath, const char* FileNa
 	wxString res;
 	wxStringOutputStream OutStream(&res);
 	std::fstream file;
-	// connet to the host/path
+	//Error Code
+	enum
+	{
+		ConnectFail = 10,
+		ConvertFail,
+		OpenFail
+	};
+	//Connet to the host/path
 	SetStatusText(_("Loading web page."));
-	get->Connect(host);
+	if( !get->Connect(host) )
+	{
+		get->Abort();
+		SetStatusText(_("Connect Fail! Abort."));
+		return ConnectFail;
+	}
 	wxInputStream *in = get->GetInputStream(URLpath);
-	//wxMessageBox(wxString::Format(_("%lu"), buf));
+
+	if( get->GetError() != wxPROTO_NOERR )
+	{
+		/*
+		0	wxPROTO_NOERR	 No error.
+		1	wxPROTO_NETERR	 A generic network error occurred.
+		2	wxPROTO_PROTERR	 An error occurred during negotiation.
+		3	wxPROTO_CONNERR	 The client failed to connect the server.
+		4	wxPROTO_INVVAL	 Invalid value.
+		5	wxPROTO_NOHNDLR	 .
+		6	wxPROTO_NOFILE	 The remote file doesn't exist.
+		7	wxPROTO_ABRT	 Last action aborted.
+		8	wxPROTO_RCNCT	 An error occurred during reconnection.
+		9	wxPROTO_STREAM	 Someone tried to send a command during a transfer.
+		*/
+		switch( get->GetError() )
+		{
+			default:
+				break;
+			case 1:
+				SetStatusText(_("Network error."));
+				break;
+			case 2:
+				SetStatusText(_("Negotiation error."));
+				break;
+			case 3:
+				SetStatusText(_("Connect error."));
+				break;
+			case 4:
+				SetStatusText(_("Invalid value."));
+				break;
+			case 5:
+				SetStatusText(_("No Handler."));
+				break;
+			case 6:
+				SetStatusText(_("404 File Not Found."));
+				break;
+			case 7:
+				SetStatusText(_("Last action aborted."));
+				break;
+			case 8:
+				SetStatusText(_("Reconnect error."));
+				break;
+			case 9:
+				SetStatusText(_("Transfer error"));
+				break;
+		}
+		return get->GetError();
+
+	}
 
 	if(ConvFlag == 1)
 	{
@@ -263,7 +324,7 @@ int creeperFrame::GetWebdata(wxString host, wxString URLpath, const char* FileNa
 		if( !convert("UTF-8", "BIG5", InData, buf, OutData, buf*2) )
 		{
 			SetStatusText(_("Converting  Failed!"));
-			return 1;
+			return ConvertFail;
 		}
 		//wxMessageBox(wxString::FromUTF8(OutData));
 		//Store file in filesystem
@@ -271,7 +332,7 @@ int creeperFrame::GetWebdata(wxString host, wxString URLpath, const char* FileNa
 		if( !file.is_open() )
 		{
 			SetStatusText(_("Open File Error!"));
-			return 2;
+			return OpenFail;
 		}
 		file.write(OutData, buf*2);
 		file.close();
@@ -659,6 +720,7 @@ void creeperFrame::DebugBtn(wxCommandEvent& event)
 	GetImgCode( FileName.c_str() );
 
 }
+
 /*{{{*/
 	/* Fetch html data using wxURL ==================
 	wxURL *creeperURL = new wxURL(_("http://www.8comic.com"));
