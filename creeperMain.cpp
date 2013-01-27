@@ -670,6 +670,8 @@ void creeperFrame::DebugBtn(wxCommandEvent& event)
 	creeperFileList->SetLabel( creeperFileList->GetLabel()
 							+ wxString::FromUTF8(FileName.c_str()) + _("\n"));
 
+	GetComicIndex( FileName.c_str() );
+
 	//Start getting the code file: ./tmp/xxxx-code.html
 	//To get baseUrl and set UrlPath
 	/*
@@ -694,9 +696,7 @@ void creeperFrame::DebugBtn(wxCommandEvent& event)
 	creeperFileList->SetLabel( creeperFileList->GetLabel()
 							+ wxString::FromUTF8(FileName.c_str()) + _("\n"));
 
-	//GetComicIndex( dest.data() );
-
-	//GetImgCode( DestCode.c_str() );
+	GetImgCode( FileName.c_str() );
 
 }
 /*{{{*/
