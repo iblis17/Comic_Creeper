@@ -62,24 +62,24 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
     : wxFrame(frame, -1, title, wxPoint(-1, -1), wxSize(700, 300))
 {
 #if wxUSE_MENUS
-    // create a menu bar
-    wxMenuBar* mbar = new wxMenuBar();
-    wxMenu* fileMenu = new wxMenu(_T(""));
-    fileMenu->Append(idMenuQuit, _("&Quit\tAlt-F4"), _("Quit the application"));
-    mbar->Append(fileMenu, _("&File"));
+	// create a menu bar
+	wxMenuBar* mbar = new wxMenuBar();
+	wxMenu* fileMenu = new wxMenu(_T(""));
+	fileMenu->Append(idMenuQuit, _("&Quit\tAlt-F4"), _("Quit the application"));
+	mbar->Append(fileMenu, _("&File"));
 
-    wxMenu* helpMenu = new wxMenu(_T(""));
-    helpMenu->Append(idMenuAbout, _("&About\tF1"), _("Show info about this application"));
-    mbar->Append(helpMenu, _("&Help"));
+	wxMenu* helpMenu = new wxMenu(_T(""));
+	helpMenu->Append(idMenuAbout, _("&About\tF1"), _("Show info about this application"));
+	mbar->Append(helpMenu, _("&Help"));
 
-    SetMenuBar(mbar);
+	SetMenuBar(mbar);
 #endif // wxUSE_MENUS
 
 #if wxUSE_STATUSBAR
-    // create a status bar with some information about the used wxWidgets version
-    CreateStatusBar(1);
-    SetStatusText(_("Ready"),0);
-    //SetStatusText(wxbuildinfo(short_f), 1);
+	// create a status bar with some information about the used wxWidgets version
+	CreateStatusBar(1);
+	SetStatusText(_("Ready"),0);
+	//SetStatusText(wxbuildinfo(short_f), 1);
 #endif // wxUSE_STATUSBAR
 
 	// create StaticText for showing content
@@ -99,9 +99,9 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 								wxDefaultPosition, wxDefaultSize,
 								0, wxDefaultValidator, _("SearchBtn"));
 
-    creeperDebugBtn = new wxButton(creeperStatusPanel, idDebugBtn, _("Debug"),
-                                wxDefaultPosition, wxDefaultSize,
-                                0, wxDefaultValidator, _("Debug"));
+	creeperDebugBtn = new wxButton(creeperStatusPanel, idDebugBtn, _("Debug"),
+								wxDefaultPosition, wxDefaultSize,
+								0, wxDefaultValidator, _("Debug"));
 
 	creeperSInput = new wxTextCtrl(creeperStatusPanel, idSInput, _(""),
 								wxDefaultPosition, wxSize(100, -1),
@@ -125,7 +125,7 @@ creeperFrame::creeperFrame(wxFrame *frame, const wxString& title)/*{{{*/
 	hStatBox1->Add(creeperContent, 0, wxTOP, 2);
 	hStatBox1->Add(creeperSInput, 0, wxRIGHT | wxLEFT, 10);
 	hStatBox1->Add(creeperSearchBtn, 0, wxRIGHT, 5);
-    hStatBox1->Add(creeperDebugBtn, 0, wxRIGHT, 5);
+	hStatBox1->Add(creeperDebugBtn, 0, wxRIGHT, 5);
 	hStatBox1->Add(creeperClearBtn, 0);
 	vStatBox->Add(hStatBox1, 0, wxLEFT | wxRIGHT, 10);
 	vStatBox->Add(-1, 10);
@@ -273,20 +273,20 @@ int creeperFrame::GetWebdata(const char *host, const char *path)/*{{{*/
 
 int creeperFrame::GetWebdata(wxString host, wxString URLpath, std::string FileName, int ConvFlag = 0)
 {
-    wxHTTP *get = new wxHTTP;
-    size_t buf;
+	wxHTTP *get = new wxHTTP;
+	size_t buf;
 	char *InData, *OutData;
 	wxString res;
 	wxStringOutputStream OutStream(&res);
 	std::string FilePath = "./tmp/";
 	std::fstream file;
-    // connet to the host/path
-    get->Connect(host);
-    wxInputStream *in = get->GetInputStream(URLpath);
-    //wxMessageBox(wxString::Format(_("%lu"), buf));
+	// connet to the host/path
+	get->Connect(host);
+	wxInputStream *in = get->GetInputStream(URLpath);
+	//wxMessageBox(wxString::Format(_("%lu"), buf));
 
-    if(ConvFlag == 1)
-    {
+	if(ConvFlag == 1)
+	{
 		//store response data in 'InData'
 		buf = in->GetSize();
 		InData = new char[buf];
@@ -308,8 +308,8 @@ int creeperFrame::GetWebdata(wxString host, wxString URLpath, std::string FileNa
 		}
 		file.write(OutData, buf*2);
 		file.close();
-    }
-    else
+	}
+	else
 	{
 		in->Read(OutStream);
 		//wxMessageBox(res);
@@ -632,9 +632,9 @@ int creeperFrame::ConvertFile(const char *file)
 
 void creeperFrame::DebugBtn(wxCommandEvent& event)
 {
-    GetWebdata(_("www.8comic.com"), _("/html/5231.html"), "5231.html", 1);
-    //GetWebdata(_("www.google.com.tw"), _("/"), 0);
-    //GetWebdata(_("www.8comic.com"), _("/"), 1);
+	GetWebdata(_("www.8comic.com"), _("/html/5231.html"), "5231.html", 1);
+	//GetWebdata(_("www.google.com.tw"), _("/"), 0);
+	//GetWebdata(_("www.8comic.com"), _("/"), 1);
 }
 /*{{{*/
 	/* Fetch html data using wxURL ==================

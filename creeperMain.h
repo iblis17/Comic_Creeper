@@ -32,34 +32,34 @@
 #include	<iconv.h>
 
 class creeperFrame: public wxFrame
-{
-    public:
+	{
+	public:
 		creeperFrame(wxFrame *frame, const wxString& title);
 		~creeperFrame();
 
-    private:
-        enum
-        {
-            idMenuQuit = 1000,
-            idMenuAbout,
-            idContent,
-            idPanel,
-            idStatusPanel,
-            idSearchBtn,
+	private:
+		enum
+		{
+			idMenuQuit = 1000,
+			idMenuAbout,
+			idContent,
+			idPanel,
+			idStatusPanel,
+			idSearchBtn,
 			idClearBtn,
-            idSocket,
-            idSInput,
-            idFileList,
-            idDebugBtn
-        };
-        void OnClose(wxCloseEvent& event);
-        void OnQuit(wxCommandEvent& event);
-        void OnAbout(wxCommandEvent& event);
-        void SearchBtn(wxCommandEvent& event);
+			idSocket,
+			idSInput,
+			idFileList,
+			idDebugBtn
+		};
+		void OnClose(wxCloseEvent& event);
+		void OnQuit(wxCommandEvent& event);
+		void OnAbout(wxCommandEvent& event);
+		void SearchBtn(wxCommandEvent& event);
 		void ClearBtn(wxCommandEvent& event);
 		void GetIndexBtn(std::string);
 		void DebugBtn(wxCommandEvent& event);
-        void SocketEvn(wxSocketEvent& event);
+		void SocketEvn(wxSocketEvent& event);
 		int GetWebdata(const char *, const char *);
 		int GetWebdata(wxString, wxString, std::string, int);
 		std::string Getcview(const char *file);
@@ -87,7 +87,7 @@ class creeperFrame: public wxFrame
 		std::vector<wxButton *> IndexBtn;
 
 
-        DECLARE_EVENT_TABLE()
+		DECLARE_EVENT_TABLE()
 };
 
 size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp);
