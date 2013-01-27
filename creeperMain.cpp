@@ -271,35 +271,52 @@ int creeperFrame::GetWebdata(const char *host, const char *path)/*{{{*/
 	return 0;
 }/*}}}*/
 
-int creeperFrame::GetWebdata(wxString host, wxString path, int ConvFlag = 0)
+int creeperFrame::GetWebdata(wxString host, wxString URLpath, std::string FileName, int ConvFlag = 0)
 {
     wxHTTP *get = new wxHTTP;
     size_t buf;
 	char *InData, *OutData;
+	wxString res;
+	wxStringOutputStream OutStream(&res);
+	std::string FilePath = "./tmp/";
+	std::fstream file;
     // connet to the host/path
     get->Connect(host);
-    wxInputStream *in = get->GetInputStream(path);
-    //store response data in 'InData'
-    buf = in->GetSize();
-    InData = new char[buf];
-    in->Read(InData, buf);
-    //Converting data from big5 to utf8, if needed
+    wxInputStream *in = get->GetInputStream(URLpath);
+    //wxMessageBox(wxString::Format(_("%lu"), buf));
+
     if(ConvFlag == 1)
     {
+		//store response data in 'InData'
+		buf = in->GetSize();
+		InData = new char[buf];
+		in->Read(InData, buf);
 		OutData = new char[buf*2];
-		if( convert("UTF-8", "BIG5", InData, buf, OutData, buf*2) )
+		 //Converting data from big5 to utf8, if needed
+		if( !convert("UTF-8", "BIG5", InData, buf, OutData, buf*2) )
 		{
 			SetStatusText(_("Converting  Failed!"));
-			return -1;
+			return 1;
 		}
 		//wxMessageBox(wxString::FromUTF8(OutData));
+		//Store file in filesystem
+		file.open((FilePath+FileName).c_str(), std::ios::in | std::ios::out | std::ios::trunc);
+		if( !file.is_open() )
+		{
+			SetStatusText(_("Open File Error!"));
+			return 2;
+		}
+		file.write(OutData, buf*2);
+		file.close();
     }
     else
 	{
-		wxMessageBox(wxString::FromUTF8(InData));
+		in->Read(OutStream);
+		//wxMessageBox(res);
 	}
 
-	  return 0;
+	SetStatusText(_("Fetch file sucessfully !"));
+	return 0;
 }
 
 size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
@@ -615,8 +632,8 @@ int creeperFrame::ConvertFile(const char *file)
 
 void creeperFrame::DebugBtn(wxCommandEvent& event)
 {
-    //GetWebdata(_("www.8comic.com"), _("/html/5231.html"), 1);
-    GetWebdata(_("www.google.com"), _("/"), 0);
+    GetWebdata(_("www.8comic.com"), _("/html/5231.html"), "5231.html", 1);
+    //GetWebdata(_("www.google.com.tw"), _("/"), 0);
     //GetWebdata(_("www.8comic.com"), _("/"), 1);
 }
 /*{{{*/
