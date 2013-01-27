@@ -61,8 +61,8 @@ class creeperFrame: public wxFrame
 		void DebugBtn(wxCommandEvent& event);
 		void SocketEvn(wxSocketEvent& event);
 		int GetWebdata(const char *, const char *);
-		int GetWebdata(wxString, wxString, std::string, int);
-		std::string Getcview(const char *file);
+		int GetWebdata(wxString, wxString, const char*, int = 0);
+		std::string Getcview(const char *file, int = 0);
 		void GetImgCode(const char*);
 		void GetComicIndex(const char*);
 		bool convert(const char*, const char*, char*, size_t, char*, size_t);
