@@ -2,7 +2,6 @@ Comic Creeper
 
 dependency:
 	wxWidget-2.8
-	libcurl-7.21.2 +
 	libiconv-1.14 +
 
 Installation:

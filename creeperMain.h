@@ -22,8 +22,6 @@
 #include	<wx/sckstrm.h>
 #include    <wx/protocol/http.h>
 
-#include	<curl/curl.h>
-
 #include	<string>
 #include	<fstream>
 #include	<sstream>
@@ -60,7 +58,6 @@ class creeperFrame: public wxFrame
 		void GetIndexBtn(std::string);
 		void DebugBtn(wxCommandEvent& event);
 		void SocketEvn(wxSocketEvent& event);
-		int GetWebdata(const char *, const char *);
 		int GetWebdata(wxString, wxString, const char*, int = 0);
 		std::string Getcview(const char *file, int = 0);
 		void GetImgCode(const char*);
@@ -89,7 +86,5 @@ class creeperFrame: public wxFrame
 
 		DECLARE_EVENT_TABLE()
 };
-
-size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp);
 
 #endif // creeperMAIN_H

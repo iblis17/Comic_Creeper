@@ -238,39 +238,6 @@ void creeperFrame::SocketEvn(wxSocketEvent& event)/*{{{*/
 	}
 }/*}}}*/
 
-int creeperFrame::GetWebdata(const char *host, const char *path)/*{{{*/
-{
-	CURL *creeperHTTP;
-	CURLcode req;
-	char err[CURL_ERROR_SIZE];
-	FILE *userfile;
-
-	userfile = fopen(path, "w+");
-	creeperHTTP = curl_easy_init();
-	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEFUNCTION, NULL);
-	curl_easy_setopt(creeperHTTP, CURLOPT_WRITEDATA, userfile);
-	curl_easy_setopt(creeperHTTP, CURLOPT_ERRORBUFFER, err);
-	curl_easy_setopt(creeperHTTP, CURLOPT_URL, host);
-	SetStatusText(_("Curl Loading."));
-	req = curl_easy_perform(creeperHTTP);
-
-	if(req != 0)
-	{
-		wxMessageBox( wxString::FromUTF8(err) );
-		SetStatusText(_("Curl Fail!"));
-		curl_easy_cleanup(creeperHTTP);
-		return 1;
-	}
-	else
-	{
-		SetStatusText(_("Curl success!"));
-	}
-
-	curl_easy_cleanup(creeperHTTP);
-	fclose( userfile );
-	return 0;
-}/*}}}*/
-
 int creeperFrame::GetWebdata(wxString host, wxString URLpath, const char* FileName, int ConvFlag)
 {
 	wxHTTP *get = new wxHTTP;
@@ -318,13 +285,6 @@ int creeperFrame::GetWebdata(wxString host, wxString URLpath, const char* FileNa
 	SetStatusText(_("Fetch file sucessfully !"));
 	return 0;
 }
-
-size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)/*{{{*/
-{
-	//userdata += buffer;
-	//wxMessageBox( wxString::Format(_("%i"), size));
-	return (size*nmemb);
-}/*}}}*/
 
 void creeperFrame::ClearBtn(wxCommandEvent& event)/*{{{*/
 {
