@@ -271,16 +271,16 @@ int creeperFrame::GetWebdata(const char *host, const char *path)/*{{{*/
 	return 0;
 }/*}}}*/
 
-int creeperFrame::GetWebdata(wxString host, wxString URLpath, std::string FileName, int ConvFlag = 0)
+int creeperFrame::GetWebdata(wxString host, wxString URLpath, const char* FileName, int ConvFlag)
 {
 	wxHTTP *get = new wxHTTP;
 	size_t buf;
 	char *InData, *OutData;
 	wxString res;
 	wxStringOutputStream OutStream(&res);
-	std::string FilePath = "./tmp/";
 	std::fstream file;
 	// connet to the host/path
+	SetStatusText(_("Loading web page."));
 	get->Connect(host);
 	wxInputStream *in = get->GetInputStream(URLpath);
 	//wxMessageBox(wxString::Format(_("%lu"), buf));
@@ -300,7 +300,7 @@ int creeperFrame::GetWebdata(wxString host, wxString URLpath, std::string FileNa
 		}
 		//wxMessageBox(wxString::FromUTF8(OutData));
 		//Store file in filesystem
-		file.open((FilePath+FileName).c_str(), std::ios::in | std::ios::out | std::ios::trunc);
+		file.open(FileName, std::ios::in | std::ios::out | std::ios::trunc);
 		if( !file.is_open() )
 		{
 			SetStatusText(_("Open File Error!"));
@@ -333,7 +333,7 @@ void creeperFrame::ClearBtn(wxCommandEvent& event)/*{{{*/
 	creeperFileList->SetLabel(_(""));
 }/*}}}*/
 
-std::string creeperFrame::Getcview(const char *file)/*{{{*/
+std::string creeperFrame::Getcview(const char *file, int ShortPath)/*{{{*/
 {
 	std::ifstream cview;
 	std::string catid, baseurl;
@@ -360,34 +360,39 @@ std::string creeperFrame::Getcview(const char *file)/*{{{*/
 		catid=="6" ||
 		catid=="12" ||
 		catid=="22" )
-			baseurl="http://www.8comic.com/show/cool-";
+			baseurl="/show/cool-";
 	else if(catid=="1" ||
 			catid=="17" ||
 			catid=="19" ||
 			catid=="21" )
-			baseurl="http://www.8comic.com/show/cool-";
+			baseurl="/show/cool-";
 	else if(catid=="2" ||
 			catid=="5" ||
 			catid=="7" ||
 			catid=="9" )
-			baseurl="http://www.8comic.com/show/cool-";
+			baseurl="/show/cool-";
 	else if(catid=="10" ||
 			catid=="11" ||
 			catid=="13" ||
 			catid=="14" )
-			baseurl="http://www.8comic.com/show/best-manga-";
+			baseurl="/best-manga-";
 	else if(catid=="3" ||
 			catid=="8" ||
 			catid=="15" ||
 			catid=="16" ||
 			catid=="18" ||
 			catid=="20" )
-			baseurl="http://www.8comic.com/show/best-manga-";
+			baseurl="/show/best-manga-";
 	else
 	{
 		SetStatusText(_("Getcview Fail!"));
+		return "Error";
 	}
 
+	if(ShortPath == 0)
+	{
+		baseurl = "http://www.8comic.com" + baseurl;
+	}
 	cview.close();
 	return baseurl;
 
@@ -632,9 +637,67 @@ int creeperFrame::ConvertFile(const char *file)
 
 void creeperFrame::DebugBtn(wxCommandEvent& event)
 {
-	GetWebdata(_("www.8comic.com"), _("/html/5231.html"), "5231.html", 1);
+	//GetWebdata(_("www.8comic.com"), _("/html/5231.html"), "5231.html", 1);
 	//GetWebdata(_("www.google.com.tw"), _("/"), 0);
 	//GetWebdata(_("www.8comic.com"), _("/"), 1);
+	/*
+	This funciton will store two file in TmpDir:
+		xxxx.html				this contains the index table.
+		xxxx-code.html		this contains the img code.
+	*/
+	wxString host(_("www.8comic.com")), UrlPath;
+	std::string CodeUrl, DestCode;
+	std::string FilePath = "./tmp/", FileName;
+
+	if(creeperSInput->IsEmpty())
+	{
+		SetStatusText(_("Please input ComicID."));
+		return;
+	}
+
+	//UrlPath for index table: /html/xxxx.html
+	UrlPath = _("/html/") + creeperSInput->GetValue() + _(".html");
+	//Setting file name : ./tmp/xxxx.html
+	FileName = FilePath + std::string(creeperSInput->GetValue().mb_str()) + ".html";
+
+	//Wirte log to creeperFileList Panel
+	if ( GetWebdata(host, UrlPath, FileName.c_str(), 1) != 0)
+	{
+		creeperFileList->SetLabel( creeperFileList->GetLabel()
+									+ _("Fail to get:") + creeperSInput->GetValue() + _(".html\n"));
+		return;
+	}
+	creeperFileList->SetLabel( creeperFileList->GetLabel()
+							+ wxString::FromUTF8(FileName.c_str()) + _("\n"));
+
+	//Start getting the code file: ./tmp/xxxx-code.html
+	//To get baseUrl and set UrlPath
+	/*
+	if( Getcview(FileName.c_str()) == "Error")
+	{
+		return;
+	}
+	UrlPath = wxString::FromUTF8(Getcview(FileName.c_str(), 1).c_str())
+		+ creeperSInput->GetValue() + _(".html");
+	*/
+	//Using host/view/xxxx.html to replace Getcview
+	UrlPath = _("/view/") + creeperSInput->GetValue() + _(".html");
+	//Setting file name : ./tmp/xxxx-code.html
+	FileName = FilePath + std::string(creeperSInput->GetValue().mb_str()) + ("-code.html");
+	//Wirte log to creeperFileList Panel
+	if( GetWebdata(host, UrlPath, FileName.c_str(), 1) != 0)
+	{
+		creeperFileList->SetLabel( creeperFileList->GetLabel()
+									+ _("Fail to get:") + creeperSInput->GetValue() + _("-code.html\n"));
+		return;
+	}
+	creeperFileList->SetLabel( creeperFileList->GetLabel()
+							+ wxString::FromUTF8(FileName.c_str()) + _("\n"));
+
+	//GetComicIndex( dest.data() );
+
+	//GetImgCode( DestCode.c_str() );
+
 }
 /*{{{*/
 	/* Fetch html data using wxURL ==================
