@@ -658,67 +658,6 @@ int creeperFrame::ConvertFile(const char *file)
 
 void creeperFrame::DebugBtn(wxCommandEvent& event)
 {
-	//GetWebdata(_("www.8comic.com"), _("/html/5231.html"), "5231.html", 1);
-	//GetWebdata(_("www.google.com.tw"), _("/"), 0);
-	//GetWebdata(_("www.8comic.com"), _("/"), 1);
-	/*
-	This funciton will store two file in TmpDir:
-		xxxx.html				this contains the index table.
-		xxxx-code.html		this contains the img code.
-	*/
-	wxString host(_("www.8comic.com")), UrlPath;
-	std::string CodeUrl, DestCode;
-	std::string FilePath = "./tmp/", FileName;
-
-	if(creeperSInput->IsEmpty())
-	{
-		SetStatusText(_("Please input ComicID."));
-		return;
-	}
-
-	//UrlPath for index table: /html/xxxx.html
-	UrlPath = _("/html/") + creeperSInput->GetValue() + _(".html");
-	//Setting file name : ./tmp/xxxx.html
-	FileName = FilePath + std::string(creeperSInput->GetValue().mb_str()) + ".html";
-
-	//Wirte log to creeperFileList Panel
-	if ( GetWebdata(host, UrlPath, FileName.c_str(), 1) != 0)
-	{
-		creeperFileList->SetLabel( creeperFileList->GetLabel()
-									+ _("Fail to get:") + creeperSInput->GetValue() + _(".html\n"));
-		return;
-	}
-	creeperFileList->SetLabel( creeperFileList->GetLabel()
-							+ wxString::FromUTF8(FileName.c_str()) + _("\n"));
-
-	GetComicIndex( FileName.c_str() );
-
-	//Start getting the code file: ./tmp/xxxx-code.html
-	//To get baseUrl and set UrlPath
-	/*
-	if( Getcview(FileName.c_str()) == "Error")
-	{
-		return;
-	}
-	UrlPath = wxString::FromUTF8(Getcview(FileName.c_str(), 1).c_str())
-		+ creeperSInput->GetValue() + _(".html");
-	*/
-	//Using host/view/xxxx.html to replace Getcview
-	UrlPath = _("/view/") + creeperSInput->GetValue() + _(".html");
-	//Setting file name : ./tmp/xxxx-code.html
-	FileName = FilePath + std::string(creeperSInput->GetValue().mb_str()) + ("-code.html");
-	//Wirte log to creeperFileList Panel
-	if( GetWebdata(host, UrlPath, FileName.c_str(), 1) != 0)
-	{
-		creeperFileList->SetLabel( creeperFileList->GetLabel()
-									+ _("Fail to get:") + creeperSInput->GetValue() + _("-code.html\n"));
-		return;
-	}
-	creeperFileList->SetLabel( creeperFileList->GetLabel()
-							+ wxString::FromUTF8(FileName.c_str()) + _("\n"));
-
-	GetImgCode( FileName.c_str() );
-
 }
 
 /*{{{*/
