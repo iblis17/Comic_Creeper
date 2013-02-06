@@ -24,7 +24,7 @@ class creeper:
 		self.label1.show()
 
 		# Frame
-		self.frame1 = gtk.Frame("tset")
+		self.frame1 = gtk.Frame("Index")
 		self.frame1.show()
 
 		# Text entry
@@ -35,6 +35,10 @@ class creeper:
 		self.SearchBtn = gtk.Button("Commit")
 		self.SearchBtn.connect("clicked", self.Search, self.ComicID)
 		self.SearchBtn.show()
+
+		# Foot Separator
+		self.FSpeparator = gtk.HSeparator()
+		self.FSpeparator.show()
 		
 		# Packing
 		self.VBox1 = gtk.VBox(False, 0)
@@ -45,6 +49,7 @@ class creeper:
 		self.HBox1.show()
 		self.VBox1.pack_start(self.HBox1, False, True, 0)
 		self.VBox1.pack_start(self.frame1, True, True, 10)
+		self.VBox1.pack_start(self.FSpeparator, False, True, 0)
 		self.VBox1.pack_start(self.StatusBar, False, True, 0)
 		self.VBox1.show()
 		self.window.add(self.VBox1)
@@ -70,6 +75,21 @@ class creeper:
 		if src == None :
 			return
 		index = self.GetComicIndex(src)
+		## Packing index buttons with table
+		row = len(index) // 5
+		row += 1 if ((len(index) % 5) != 0) else 0
+		self.table1 = gtk.Table(1, 1, True)
+		num = len(index)
+		k = 0
+		for i in range(0, row):
+			for j in range(0, 5 if num > 5 else num):
+				btn = gtk.Button(index[k])
+				k += 1
+				self.table1.attach(btn, j, j+1, i, i+1)
+				btn.show()
+			num -= 5
+		self.table1.show()
+		self.frame1.add(self.table1)
 
 	def GetWebData(self, host, path):
 		get = httplib.HTTPConnection(host)
@@ -93,6 +113,7 @@ class creeper:
 	def GetComicIndex(self, src):
 		index = BeautifulSoup(src)
 		ls = []
+
 		# Remove needless string
 		for i in index.find(id='rp_ctl00_tb_comic').find_all('script'):
 			i.decompose()
