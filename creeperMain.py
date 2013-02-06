@@ -23,9 +23,13 @@ class creeper:
 		self.label1.set_line_wrap(True)
 		self.label1.show()
 
-		# Frame
+		# Frame for showing comic index
 		self.frame1 = gtk.Frame("Index")
 		self.frame1.show()
+
+		# Frame for showing comic info
+		self.frame2 = gtk.Frame('Info')
+		self.frame2.show()
 
 		# Text entry
 		self.ComicID = gtk.Entry(5)
@@ -36,7 +40,7 @@ class creeper:
 		self.SearchBtn.connect("clicked", self.Search, self.ComicID)
 		self.SearchBtn.show()
 
-		#Button for cleaning frame
+		# Button for cleaning frame
 		self.CleanBtn = gtk.Button("Clean")
 		self.CleanBtn.connect('clicked', self.CleanFrame)
 		self.CleanBtn.show()
@@ -54,7 +58,8 @@ class creeper:
 		self.HBox1.pack_start(self.CleanBtn, False, True, 0)
 		self.HBox1.show()
 		self.VBox1.pack_start(self.HBox1, False, True, 0)
-		self.VBox1.pack_start(self.frame1, True, True, 10)
+		self.VBox1.pack_start(self.frame2, True, True, 0)
+		self.VBox1.pack_start(self.frame1, True, True, 0)
 		self.VBox1.pack_start(self.FSpeparator, False, True, 0)
 		self.VBox1.pack_start(self.StatusBar, False, True, 0)
 		self.VBox1.show()
