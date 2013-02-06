@@ -7,6 +7,26 @@ from bs4 import BeautifulSoup
 
 class creeper:
 	def __init__(self):
+		"""
+		Layout:
+		+ VBox1 ------------------------------------------+
+		|  + HBox1 ----------------------------------+    |
+		|  | label1 | ComicID | SearchBtn | CleanBtn |    |
+		|  +-----------------------------------------+    |
+		|  + frame2 +                                     |
+		|  | label2 |                                     |
+		|  +--------+                                     |
+		|  + frame1 ------------+                         |
+		|  |  + table1 ------+ |                          |
+		|  |  | Button | ... | |                          |
+		|  |  +--------+-----+ |                          |
+		|  |  |  ...   | ... | |                          |
+		|  |  +--------------+ |                          |
+		|  +--------------------+                         |
+		|  + FSpeparator ------+                          |
+		|  + StatusBar --------+                          |
+		+-------------------------------------------------+
+		"""
 		self.window = gtk.Window()
 		self.window.set_title("Comic Creeper")
 		self.window.set_size_request(600, 400)
@@ -74,7 +94,9 @@ class creeper:
 		return False
 
 	def Search(self, widget, cid):
-		"""cid for Comic ID."""
+		"""
+		cid for Comic ID.
+		"""
 		url = 'www.8comic.com'
 		
 		# Checking input data if a number
@@ -172,7 +194,9 @@ class creeper:
 		self.StatusBar.push(0, 'Ready')
 
 	def GetImgCode(self, cid):
-		"""This function will generate a tow dimension list."""
+		"""
+		This function will generate a tow dimension list.
+		"""
 		src = self.GetWebData('www.8comic.com', '/view/' + cid.get_text() + '.html')
 		codes= BeautifulSoup(src)
 		codes = str(codes.find_all('script', src='')[-1])
