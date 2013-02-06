@@ -81,10 +81,10 @@ class creeper:
 			self.StatusBar.push(0, "Please input a Comic ID!")
 			return
 		
-		# Get the index
 		src = self.GetWebData(url, '/html/' + cid.get_text() + '.html')
 		if src == None :
 			return
+		# Get the index
 		index = self.GetComicIndex(src)
 		## Packing index buttons with table
 		row = len(index) // 5
@@ -101,6 +101,16 @@ class creeper:
 			num -= 5
 		self.table1.show()
 		self.frame1.add(self.table1)
+
+		# Get Comic Info
+		info = self.GetComicInfo(src)
+		tmps = ''
+		tmps = '%s\n%s:\t%s' % (tmps, 'Name', info['Name'])
+		tmps = '%s\n%s:\t%s' % (tmps, 'Intro', info['Intro'])
+		self.label2 = gtk.Label(tmps)
+		self.label2.show()
+		self.frame2.add(self.label2)
+		del tmps
 
 	def GetWebData(self, host, path):
 		get = httplib.HTTPConnection(host)
@@ -135,11 +145,26 @@ class creeper:
 				continue	# Ignore the first table
 			for j in i.stripped_strings:
 				ls.append(j)
-		
+			
 		return ls
+
+	def GetComicInfo(self, src):
+		src = BeautifulSoup(src)
+		dic = {}
+		
+		# Get the comic name
+		dic.update({'Name': 
+			src.table.find_next_sibling('table').table.table.table.get_text('', True)})
+
+		# Get the comic introduction
+		dic.update({'Intro':
+			src.table.find_next_sibling('table').table.find_all('td')[-1].get_text('', True)})
+		
+		return dic
 
 	def CleanFrame(self, widget):
 		self.frame1.remove(self.table1)
+		self.frame2.remove(self.label2)
 		self.ComicID.set_text('')
 
 if __name__ == '__main__':
