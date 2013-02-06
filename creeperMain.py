@@ -2,6 +2,7 @@
 import pygtk
 pygtk.require("2.0")
 import gtk
+import httplib
 
 class creeper:
 	def __init__(self):
@@ -56,7 +57,34 @@ class creeper:
 		return False
 
 	def Search(self, widget, cid): # cid for Comic ID
-		print(cid.get_text())
+		url = 'www.8comic.com'
+		
+		# Checking input data if a number
+		if cid.get_text().isdigit() == False :
+			self.StatusBar.push(0, "Please input a Comic ID!")
+			return
+		
+		# Get the index
+		index = self.GetWebData(url, '/html/' + cid.get_text() + '.html')
+
+	def GetWebData(self, host, path):
+		get = httplib.HTTPConnection(host)
+		
+		get.request('GET', path, '', {'Referer': 'http://www.8comic.com/',
+			'User-Agent': 'Mozilla/5.0  AppleWebKit/537.11 (KHTML, like Gecko)\
+			Chromium/23.0.1271.97 Chrome/23.0.1271.97 Safari/537.11'})
+		self.StatusBar.push(0, 'Loading')
+		index = get.getresponse()
+		self.StatusBar.push(0, str(index.status) + ' ' + index.reason)
+		
+		# Checking http status code
+		if index.status != 200:
+			get.close()
+			return
+		
+		data = index.read().decode('big5')
+		get.close()
+		return data
 
 if __name__ == '__main__':
 	cc = creeper()
