@@ -36,6 +36,11 @@ class creeper:
 		self.SearchBtn.connect("clicked", self.Search, self.ComicID)
 		self.SearchBtn.show()
 
+		#Button for cleaning frame
+		self.CleanBtn = gtk.Button("Clean")
+		self.CleanBtn.connect('clicked', self.CleanFrame)
+		self.CleanBtn.show()
+
 		# Foot Separator
 		self.FSpeparator = gtk.HSeparator()
 		self.FSpeparator.show()
@@ -46,6 +51,7 @@ class creeper:
 		self.HBox1.pack_start(self.label1, False, True, 0)
 		self.HBox1.pack_start(self.ComicID, True, True, 0)
 		self.HBox1.pack_start(self.SearchBtn, False, True, 0)
+		self.HBox1.pack_start(self.CleanBtn, False, True, 0)
 		self.HBox1.show()
 		self.VBox1.pack_start(self.HBox1, False, True, 0)
 		self.VBox1.pack_start(self.frame1, True, True, 10)
@@ -78,7 +84,6 @@ class creeper:
 		## Packing index buttons with table
 		row = len(index) // 5
 		row += 1 if ((len(index) % 5) != 0) else 0
-		self.table1.destroy()
 		self.table1 = gtk.Table(1, 1, True)
 		num = len(index)
 		k = 0
@@ -127,6 +132,10 @@ class creeper:
 				ls.append(j)
 		
 		return ls
+
+	def CleanFrame(self, widget):
+		self.frame1.remove(self.table1)
+		self.ComicID.set_text('')
 
 if __name__ == '__main__':
 	cc = creeper()
