@@ -3,6 +3,7 @@ import pygtk
 pygtk.require("2.0")
 import gtk
 import httplib
+from bs4 import BeautifulSoup
 
 class creeper:
 	def __init__(self):
@@ -65,7 +66,10 @@ class creeper:
 			return
 		
 		# Get the index
-		index = self.GetWebData(url, '/html/' + cid.get_text() + '.html')
+		src = self.GetWebData(url, '/html/' + cid.get_text() + '.html')
+		if src == None :
+			return
+		index = self.GetComicIndex(src)
 
 	def GetWebData(self, host, path):
 		get = httplib.HTTPConnection(host)
@@ -85,6 +89,22 @@ class creeper:
 		data = index.read().decode('big5')
 		get.close()
 		return data
+
+	def GetComicIndex(self, src):
+		index = BeautifulSoup(src)
+		ls = []
+		# Remove needless string
+		for i in index.find(id='rp_ctl00_tb_comic').find_all('script'):
+			i.decompose()
+		
+		# Generate the index
+		for i in index.find(id='rp_ctl00_tb_comic').table.find_all('table'):
+			if i == index.find(id='rp_ctl00_tb_comic').table.table:
+				continue	# Ignore the first table
+			for j in i.stripped_strings:
+				ls.append(j)
+		
+		return ls
 
 if __name__ == '__main__':
 	cc = creeper()

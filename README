@@ -6,3 +6,8 @@ dependency:
 
 Installation:
 	$ make init all
+
+About Python:
+	- Witten in Python2.7
+	- PyGTK
+	- BeautifulSoup4
