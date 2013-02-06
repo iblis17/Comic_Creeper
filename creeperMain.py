@@ -78,6 +78,7 @@ class creeper:
 		## Packing index buttons with table
 		row = len(index) // 5
 		row += 1 if ((len(index) % 5) != 0) else 0
+		self.table1.destroy()
 		self.table1 = gtk.Table(1, 1, True)
 		num = len(index)
 		k = 0
