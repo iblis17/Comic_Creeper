@@ -73,7 +73,8 @@ class creeper:
 		gtk.main_quit()
 		return False
 
-	def Search(self, widget, cid): # cid for Comic ID
+	def Search(self, widget, cid):
+		"""cid for Comic ID."""
 		url = 'www.8comic.com'
 		
 		# Checking input data if a number
@@ -87,7 +88,7 @@ class creeper:
 		# Get the index
 		index = self.GetComicIndex(src)
 		# Get the images code
-		self.GetImgCode(cid)
+		imgcode = self.GetImgCode(cid)
 		## Packing index buttons with table
 		row = len(index) // 5
 		row += 1 if ((len(index) % 5) != 0) else 0
@@ -171,7 +172,7 @@ class creeper:
 		self.StatusBar.push(0, 'Ready')
 
 	def GetImgCode(self, cid):
-		# This function will generate a tow dimension list
+		"""This function will generate a tow dimension list."""
 		src = self.GetWebData('www.8comic.com', '/view/' + cid.get_text() + '.html')
 		codes= BeautifulSoup(src)
 		codes = str(codes.find_all('script', src='')[-1])
