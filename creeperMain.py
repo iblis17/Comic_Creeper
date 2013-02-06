@@ -86,6 +86,8 @@ class creeper:
 			return
 		# Get the index
 		index = self.GetComicIndex(src)
+		# Get the images code
+		self.GetImgCode(cid)
 		## Packing index buttons with table
 		row = len(index) // 5
 		row += 1 if ((len(index) % 5) != 0) else 0
@@ -101,7 +103,7 @@ class creeper:
 			num -= 5
 		self.table1.show()
 		self.frame1.add(self.table1)
-
+		
 		# Get Comic Info
 		info = self.GetComicInfo(src)
 		tmps = ''
@@ -166,6 +168,43 @@ class creeper:
 		self.frame1.remove(self.table1)
 		self.frame2.remove(self.label2)
 		self.ComicID.set_text('')
+		self.StatusBar.push(0, 'Ready')
+
+	def GetImgCode(self, cid):
+		# This function will generate a tow dimension list
+		src = self.GetWebData('www.8comic.com', '/view/' + cid.get_text() + '.html')
+		codes= BeautifulSoup(src)
+		codes = str(codes.find_all('script', src='')[-1])
+		start = codes.find('var codes=')
+		end = codes.find('.split(\'|\')')
+		codes = codes[start+11:end-1].split('|')
+		
+		# Simulating the decoding
+		itemid = cid.get_text()
+		ls = []
+		for i in codes:
+			num = i.split(' ')[0]
+			sid = i.split(' ')[1]
+			did = i.split(' ')[2]
+			page = i.split(' ')[3]
+			code = i.split(' ')[4]
+			ch = int(num) # ch for Chapter
+			j = []
+			for p in range(1, int(page)+1):
+				m = (((p - 1) // 10) % 10) + (((p - 1) % 10) * 3)
+				if p < 10:
+					img = "00" + str(p)
+				elif p < 100:
+					img = "0" + str(p)
+				else:
+					img = str(p)
+				img += '_' + code[m:m+3]
+				url = 'img' + sid + ".8comic.com"
+				path = "/" + did + "/" + itemid + "/" + num + "/" + img + ".jpg"
+				j.append((url, path))
+			ls.append(j)
+		
+		return ls
 
 if __name__ == '__main__':
 	cc = creeper()
