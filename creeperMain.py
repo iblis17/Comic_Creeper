@@ -140,7 +140,7 @@ class creeper:
 	def GetWebData(self, host, path):
 		get = httplib.HTTPConnection(host)
 		
-		get.request('GET', path, '', {'Referer': 'http://www.8comic.com/',
+		get.request('GET', path, '', {'Referer': 'http://' + host + '/',
 			'User-Agent': 'Mozilla/5.0  AppleWebKit/537.11 (KHTML, like Gecko)\
 			Chromium/23.0.1271.97 Chrome/23.0.1271.97 Safari/537.11'})
 		self.StatusBar.push(0, 'Loading')
