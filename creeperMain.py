@@ -4,10 +4,11 @@ pygtk.require("2.0")
 import gtk
 import httplib
 from bs4 import BeautifulSoup
+from threading import Thread
 
 class creeper:
 	def __init__(self):
-		"""
+		"""q
 		Layout:
 		+ VBox1 ------------------------------------------+
 		|  + HBox1 ----------------------------------+    |
@@ -97,6 +98,12 @@ class creeper:
 		"""
 		cid for Comic ID.
 		"""
+		SearchThread = Thread(target = self.ShowIndex, args = (cid,))
+		SearchThread.daemon = True
+		SearchThread.start()
+
+	
+	def ShowIndex(self, cid):
 		url = 'www.8comic.com'
 		
 		# Checking input data if a number
