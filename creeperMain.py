@@ -185,7 +185,20 @@ class creeper:
 		TmpLabel = gtk.Label(tmps)
 		TmpLabel.set_line_wrap(True)
 		TmpLabel.show()
-		TmpFrame2.add(TmpLabel)
+		## Get Comic Cover
+		cover = gtk.Image()
+		rawimg = self.GetWebData('www.8comic.com', '/pics/0/' + cid.get_text() + 's.jpg', False)
+		loader = gtk.gdk.PixbufLoader()
+		loader.write(rawimg)
+		loader.close()
+		cover.set_from_pixbuf(loader.get_pixbuf())
+		cover.show()
+		## Packing
+		TmpHBox1 = gtk.HBox(False, 0)
+		TmpHBox1.pack_start(cover, True, True, 0)
+		TmpHBox1.pack_start(TmpLabel, True, True, 0)
+		TmpHBox1.show()
+		TmpFrame2.add(TmpHBox1)
 		del tmps
 		
 		# Packing
@@ -323,7 +336,7 @@ class creeper:
 		loader.close()
 		image.set_from_pixbuf(loader.get_pixbuf())
 		image.show()
-
+		
 		# Packing
 		TmpVBox1.pack_start(image, True, True, 0)
 
