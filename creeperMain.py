@@ -320,10 +320,17 @@ class creeper:
 			self.Search(widget, self.ComicID)
 	
 	def ShowImgPage(self, widget, UrlList, TabName):
+		"""
+		Create a new tab for viewing comic.
+		"""
 		# Scrolled Window
 		TmpScrollWin = gtk.ScrolledWindow()
 		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		TmpScrollWin.show()
+		
+		# VBox
+		TmpVBox1 = gtk.VBox(True, 0)
+		TmpVBox1.show()
 		
 		# New Page
 		self.NoteBook1.append_page(TmpScrollWin, gtk.Label(TabName))
@@ -338,9 +345,7 @@ class creeper:
 		image.show()
 		
 		# Packing
-		TmpVBox1 = gtk.VBox(True, 0)
 		TmpVBox1.pack_start(image, True, True, 0)
-		TmpVBox1.show()
 		TmpScrollWin.add_with_viewport(TmpVBox1)
 
 if __name__ == '__main__':
