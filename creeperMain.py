@@ -73,6 +73,7 @@ class creeper:
 		# Menu Widget
 		## Menu Items
 		self.InfoItem = gtk.MenuItem("About")
+		self.InfoItem.connect('activate', self.ShowAboutInfo)
 		self.InfoItem.show()
 		self.AboutItem = gtk.MenuItem("About")
 		self.AboutItem.show()
@@ -255,6 +256,12 @@ class creeper:
 			ls.append(j)
 		
 		return ls
+	
+	def ShowAboutInfo(self, widget):
+		m = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK)
+		m.set_markup("Comic Creeper")
+		m.action_area.get_children()[0].connect('clicked', lambda widget: m.destroy())
+		m.show()
 
 if __name__ == '__main__':
 	cc = creeper()
