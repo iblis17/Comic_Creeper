@@ -11,11 +11,11 @@ class creeper:
 		Layout:
 		+ VBox2 --------------------------------------------------+
 		|  + MenuBar1 -------------------------------------------+|
+		|  + HBox1 ----------------------------------------------+|
+		|  | label1 | ComicID | SearchBtn | CleanBtn             ||
+		|  +-----------------------------------------------------+|
 		|  + NoteBook1-------------------------------------------+|
 		|  |  + VBox1 ------------------------------------------+||
-		|  |  |  + HBox1 ----------------------------------+    |||
-		|  |  |  | label1 | ComicID | SearchBtn | CleanBtn |    |||
-		|  |  |  +-----------------------------------------+    |||
 		|  |  |  + frame2 +                                     |||
 		|  |  |  | label2 |                                     |||
 		|  |  |  +--------+                                     |||
@@ -105,7 +105,6 @@ class creeper:
 		self.HBox1.pack_start(self.SearchBtn, False, True, 0)
 		self.HBox1.pack_start(self.CleanBtn, False, True, 0)
 		self.HBox1.show()
-		self.VBox1.pack_start(self.HBox1, False, True, 0)
 		self.VBox1.pack_start(self.frame2, True, True, 0)
 		self.VBox1.pack_start(self.frame1, True, True, 0)
 		self.VBox1.pack_start(self.FSpeparator, False, True, 0)
@@ -113,6 +112,7 @@ class creeper:
 		self.VBox1.show()
 		self.NoteBook1.append_page(self.VBox1, gtk.Label('main'))
 		self.VBox2.pack_start(self.MenuBar1, False, True, 0)
+		self.VBox2.pack_start(self.HBox1, False, True, 0)
 		self.VBox2.pack_start(self.NoteBook1, True, True, 0)
 		self.VBox2.show()
 		self.window.add(self.VBox2)
