@@ -117,7 +117,7 @@ class creeper:
 		"""
 		cid for Comic ID.
 		"""
-		ShowIndex(cid)
+		self.ShowIndex(cid)
 
 	
 	def ShowIndex(self, cid):
@@ -157,6 +157,7 @@ class creeper:
 		tmps = '%s\n%s:\t%s' % (tmps, 'Name', info['Name'])
 		tmps = '%s\n%s:\t%s' % (tmps, 'Intro', info['Intro'])
 		self.label2 = gtk.Label(tmps)
+		self.label2.set_line_wrap(True)
 		self.label2.show()
 		self.frame2.add(self.label2)
 		del tmps
