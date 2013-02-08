@@ -58,6 +58,7 @@ class creeper:
 
 		# Text entry
 		self.ComicID = gtk.Entry(5)
+		self.ComicID.connect('key_press_event', self.CommitComicID)
 		self.ComicID.show()
 
 		# Button for handling input ID
@@ -95,6 +96,7 @@ class creeper:
 		# NoteBook Widget
 		self.NoteBook1 = gtk.Notebook()
 		self.NoteBook1.popup_enable()
+		self.NoteBook1.set_scrollable(True)
 		self.NoteBook1.show()
 		
 		# Packing
@@ -296,6 +298,10 @@ class creeper:
 		m.set_markup("Comic Creeper")
 		m.action_area.get_children()[0].connect('clicked', lambda widget: m.destroy())
 		m.show()
+	
+	def CommitComicID(self, widget, event):
+		if event.keyval == 65293:
+			self.Search(widget, self.ComicID)
 
 if __name__ == '__main__':
 	cc = creeper()
