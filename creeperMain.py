@@ -4,7 +4,6 @@ pygtk.require("2.0")
 import gtk
 import httplib
 from bs4 import BeautifulSoup
-from threading import Thread
 
 class creeper:
 	def __init__(self):
@@ -117,9 +116,7 @@ class creeper:
 		"""
 		cid for Comic ID.
 		"""
-		SearchThread = Thread(target = self.ShowIndex, args = (cid,))
-		SearchThread.daemon = True
-		SearchThread.start()
+		ShowIndex(cid)
 
 	
 	def ShowIndex(self, cid):
