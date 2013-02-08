@@ -88,10 +88,14 @@ class creeper:
 		self.AboutItem.set_submenu(self.Menu1)
 		self.MenuBar1.append(self.AboutItem)
 		
+		# NoteBook Widget
+		self.NoteBook1 = gtk.Notebook()
+		self.NoteBook1.show()
+		
 		# Packing
 		self.VBox1 = gtk.VBox(False, 0)
+		self.VBox2 = gtk.VBox(False, 0)
 		self.HBox1 = gtk.HBox(True, 5)
-		self.VBox1.pack_start(self.MenuBar1, False, True, 0)
 		self.HBox1.pack_start(self.label1, False, True, 0)
 		self.HBox1.pack_start(self.ComicID, True, True, 0)
 		self.HBox1.pack_start(self.SearchBtn, False, True, 0)
@@ -103,7 +107,11 @@ class creeper:
 		self.VBox1.pack_start(self.FSpeparator, False, True, 0)
 		self.VBox1.pack_start(self.StatusBar, False, True, 0)
 		self.VBox1.show()
-		self.window.add(self.VBox1)
+		self.NoteBook1.append_page(self.VBox1, gtk.Label('main'))
+		self.VBox2.pack_start(self.MenuBar1, False, True, 0)
+		self.VBox2.pack_start(self.NoteBook1, True, True, 0)
+		self.VBox2.show()
+		self.window.add(self.VBox2)
 		self.window.show()
 	
 	def main(self):
