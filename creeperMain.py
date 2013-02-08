@@ -145,10 +145,6 @@ class creeper:
 			self.StatusBar.push(0, "Please input a Comic ID!")
 			return
 		
-		# Frame for showing comic index
-		TmpFrame1 = gtk.Frame("Index")
-		TmpFrame1.show()
-		
 		# Frame for showing comic info
 		TmpFrame2 = gtk.Frame('Info')
 		TmpFrame2.show()
@@ -175,7 +171,6 @@ class creeper:
 				btn.show()
 			num -= 5
 		TmpTable.show()
-		TmpFrame1.add(TmpTable)
 		
 		# Get Comic Info
 		info = self.GetComicInfo(src)
@@ -203,8 +198,12 @@ class creeper:
 		
 		# Packing
 		TmpVBox1 = gtk.VBox(False, 0)
+		TmpScrollWin = gtk.ScrolledWindow()
+		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		TmpScrollWin.add_with_viewport(TmpTable)
+		TmpScrollWin.show()
 		TmpVBox1.pack_start(TmpFrame2, True, True, 0)
-		TmpVBox1.pack_start(TmpFrame1, True, True, 0)
+		TmpVBox1.pack_start(TmpScrollWin, True, True, 0)
 		TmpVBox1.show()
 		# New Page
 		self.NoteBook1.append_page(TmpVBox1, gtk.Label(info['Name']));
