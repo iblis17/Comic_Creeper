@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 class creeper:
 	def __init__(self):
-		"""q
+		"""
 		Layout:
 		+ VBox1 ------------------------------------------+
 		|  + MenuBar1 -------------------------------+    |
