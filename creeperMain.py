@@ -12,7 +12,7 @@ class creeper:
 		+ VBox2 --------------------------------------------------+
 		|  + MenuBar1 -------------------------------------------+|
 		|  + HBox1 ----------------------------------------------+|
-		|  | label1 | ComicID | SearchBtn | CleanBtn             ||
+		|  | label1 | ComicID | SearchBtn | CloseBtn             ||
 		|  +-----------------------------------------------------+|
 		|  + NoteBook1-------------------------------------------+|
 		|  |  + VBox1 ------------------------------------------+||
@@ -65,10 +65,10 @@ class creeper:
 		self.SearchBtn.connect("clicked", self.Search, self.ComicID)
 		self.SearchBtn.show()
 
-		# Button for cleaning frame
-		self.CleanBtn = gtk.Button("Clean")
-		self.CleanBtn.connect('clicked', self.CleanFrame)
-		self.CleanBtn.show()
+		# Button for removing page
+		self.CloseBtn = gtk.Button("Close")
+		self.CloseBtn.connect('clicked', self.RemovePage)
+		self.CloseBtn.show()
 
 		# Foot Separator
 		self.FSpeparator = gtk.HSeparator()
@@ -94,6 +94,7 @@ class creeper:
 		
 		# NoteBook Widget
 		self.NoteBook1 = gtk.Notebook()
+		self.NoteBook1.popup_enable()
 		self.NoteBook1.show()
 		
 		# Packing
@@ -103,7 +104,7 @@ class creeper:
 		self.HBox1.pack_start(self.label1, False, True, 0)
 		self.HBox1.pack_start(self.ComicID, True, True, 0)
 		self.HBox1.pack_start(self.SearchBtn, False, True, 0)
-		self.HBox1.pack_start(self.CleanBtn, False, True, 0)
+		self.HBox1.pack_start(self.CloseBtn, False, True, 0)
 		self.HBox1.show()
 		self.VBox1.pack_start(self.frame2, True, True, 0)
 		self.VBox1.pack_start(self.frame1, True, True, 0)
@@ -132,12 +133,23 @@ class creeper:
 		self.ShowIndex(cid)
 	
 	def ShowIndex(self, cid):
+		"""
+		Create a new page and put the widget into it.
+		"""
 		url = 'www.8comic.com'
 		
-		# Checking input data if a number
+		# Checking input data if a numbe
 		if cid.get_text().isdigit() == False :
 			self.StatusBar.push(0, "Please input a Comic ID!")
 			return
+		
+		# Frame for showing comic index
+		TmpFrame1 = gtk.Frame("Index")
+		TmpFrame1.show()
+		
+		# Frame for showing comic info
+		TmpFrame2 = gtk.Frame('Info')
+		TmpFrame2.show()
 		
 		src = self.GetWebData(url, '/html/' + cid.get_text() + '.html')
 		if src == None :
@@ -149,30 +161,38 @@ class creeper:
 		## Packing index buttons with table
 		row = len(index) // 5
 		row += 1 if ((len(index) % 5) != 0) else 0
-		self.table1 = gtk.Table(1, 1, True)
+		TmpTable = gtk.Table(1, 1, True)
 		num = len(index)
 		k = 0
 		for i in range(0, row):
 			for j in range(0, 5 if num > 5 else num):
 				btn = gtk.Button(index[k])
 				k += 1
-				self.table1.attach(btn, j, j+1, i, i+1)
+				TmpTable.attach(btn, j, j+1, i, i+1)
 				btn.show()
 			num -= 5
-		self.table1.show()
-		self.frame1.add(self.table1)
+		TmpTable.show()
+		TmpFrame1.add(TmpTable)
 		
 		# Get Comic Info
 		info = self.GetComicInfo(src)
 		tmps = ''
 		tmps = '%s\n%s:\t%s' % (tmps, 'Name', info['Name'])
 		tmps = '%s\n%s:\t%s' % (tmps, 'Intro', info['Intro'])
-		self.label2 = gtk.Label(tmps)
-		self.label2.set_line_wrap(True)
-		self.label2.show()
-		self.frame2.add(self.label2)
+		TmpLabel = gtk.Label(tmps)
+		TmpLabel.set_line_wrap(True)
+		TmpLabel.show()
+		TmpFrame2.add(TmpLabel)
 		del tmps
-
+		
+		# Packing
+		TmpVBox1 = gtk.VBox(False, 0)
+		TmpVBox1.pack_start(TmpFrame2, True, True, 0)
+		TmpVBox1.pack_start(TmpFrame1, True, True, 0)
+		TmpVBox1.show()
+		# New Page
+		self.NoteBook1.append_page(TmpVBox1, gtk.Label(info['Name']));
+	
 	def GetWebData(self, host, path):
 		get = httplib.HTTPConnection(host)
 		
@@ -228,6 +248,10 @@ class creeper:
 		self.frame2.remove(self.label2)
 		self.ComicID.set_text('')
 		self.StatusBar.push(0, 'Ready')
+	
+	def RemovePage(self, widget):
+		page = self.NoteBook1.get_current_page()
+		self.NoteBook1.remove_page(page)
 
 	def GetImgCode(self, cid):
 		"""
