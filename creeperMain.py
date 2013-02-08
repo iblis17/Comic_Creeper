@@ -169,6 +169,7 @@ class creeper:
 		for i in range(0, row):
 			for j in range(0, 5 if num > 5 else num):
 				btn = gtk.Button(index[k])
+				btn.connect('clicked', self.ShowImgPage, imgcode[k], index[k])
 				k += 1
 				TmpTable.attach(btn, j, j+1, i, i+1)
 				btn.show()
@@ -195,7 +196,7 @@ class creeper:
 		# New Page
 		self.NoteBook1.append_page(TmpVBox1, gtk.Label(info['Name']));
 	
-	def GetWebData(self, host, path):
+	def GetWebData(self, host, path, ConvertFlag=True):
 		get = httplib.HTTPConnection(host)
 		
 		get.request('GET', path, '', {'Referer': 'http://' + host + '/',
@@ -210,7 +211,10 @@ class creeper:
 			get.close()
 			return
 		
-		data = index.read().decode('big5')
+		if ConvertFlag == True:
+			data = index.read().decode('big5')
+		else:
+			data = index.read()
 		get.close()
 		return data
 
@@ -302,6 +306,26 @@ class creeper:
 	def CommitComicID(self, widget, event):
 		if event.keyval == 65293:
 			self.Search(widget, self.ComicID)
+	
+	def ShowImgPage(self, widget, UrlList, TabName):
+		# VBox
+		TmpVBox1 = gtk.VBox(True, 0)
+		TmpVBox1.show()
+		
+		# New Page
+		self.NoteBook1.append_page(TmpVBox1, gtk.Label(TabName))
+		
+		# Show images
+		image = gtk.Image()
+		rawimg = self.GetWebData(UrlList[0][0], UrlList[0][1], False)
+		loader = gtk.gdk.PixbufLoader()
+		loader.write(rawimg)
+		loader.close()
+		image.set_from_pixbuf(loader.get_pixbuf())
+		image.show()
+
+		# Packing
+		TmpVBox1.pack_start(image, True, True, 0)
 
 if __name__ == '__main__':
 	cc = creeper()
