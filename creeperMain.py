@@ -70,9 +70,27 @@ class creeper:
 		self.FSpeparator = gtk.HSeparator()
 		self.FSpeparator.show()
 		
+		# Menu Widget
+		## Menu Items
+		self.InfoItem = gtk.MenuItem("About")
+		self.InfoItem.show()
+		self.AboutItem = gtk.MenuItem("About")
+		self.AboutItem.show()
+		## Menu ( Container )
+		self.Menu1 = gtk.Menu()
+		self.Menu1.show()
+		## Menu Bar
+		self.MenuBar1 = gtk.MenuBar();
+		self.MenuBar1.show()
+		## Packing
+		self.Menu1.append(self.InfoItem)
+		self.AboutItem.set_submenu(self.Menu1)
+		self.MenuBar1.append(self.AboutItem)
+		
 		# Packing
 		self.VBox1 = gtk.VBox(False, 0)
 		self.HBox1 = gtk.HBox(True, 5)
+		self.VBox1.pack_start(self.MenuBar1, False, True, 0)
 		self.HBox1.pack_start(self.label1, False, True, 0)
 		self.HBox1.pack_start(self.ComicID, True, True, 0)
 		self.HBox1.pack_start(self.SearchBtn, False, True, 0)
