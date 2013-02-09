@@ -1,9 +1,9 @@
 #!/usr/bin/env python2
 import pygtk
 pygtk.require("2.0")
-import gtk
+import gtk, gobject
 import httplib
-import threading
+from threading import Thread
 from bs4 import BeautifulSoup
 
 class creeper:
@@ -146,7 +146,7 @@ class creeper:
 		"""
 		cid for Comic ID.
 		"""
-		self.ShowIndex(cid)
+		Thread(target=self.ShowIndex, args=(cid,)).start()
 	
 	def ShowIndex(self, cid):
 		"""
@@ -163,13 +163,20 @@ class creeper:
 		TmpFrame2 = gtk.Frame('Info')
 		TmpFrame2.show()
 		
+		# Init ProgressBar
+		self.ProgressBar.set_fraction(0)
+		
 		src = self.GetWebData(url, '/html/' + cid.get_text() + '.html')
+		self.StepProgressBar(self.ProgressBar, 0.2)
+		#gobject.idle_add(self.StepProgressBar, (self.ProgressBar, 0.2))
 		if src == None :
 			return
 		# Get the index
 		index = self.GetComicIndex(src)
+		self.StepProgressBar(self.ProgressBar, 0.05)
 		# Get the images code
 		imgcode = self.GetImgCode(cid)
+		self.StepProgressBar(self.ProgressBar, 0.2)
 		## Packing index buttons with table
 		row = len(index) // 5
 		row += 1 if ((len(index) % 5) != 0) else 0
@@ -179,7 +186,10 @@ class creeper:
 		for i in range(0, row):
 			for j in range(0, 5 if num > 5 else num):
 				btn = gtk.Button(index[k])
-				btn.connect('clicked', self.ShowImgPage, imgcode[k], index[k])
+				btn.connect('clicked', 
+						lambda widget, UrlList, TabName:
+							Thread(target=self.ShowImgPage, args=(widget, UrlList, TabName)).start()
+						, imgcode[k], index[k])
 				k += 1
 				TmpTable.attach(btn, j, j+1, i, i+1)
 				btn.show()
@@ -194,6 +204,7 @@ class creeper:
 		TmpLabel = gtk.Label(tmps)
 		TmpLabel.set_line_wrap(True)
 		TmpLabel.show()
+		self.StepProgressBar(self.ProgressBar, 0.05)
 		## Get Comic Cover
 		cover = gtk.Image()
 		rawimg = self.GetWebData('www.8comic.com', '/pics/0/' + cid.get_text() + 's.jpg', False)
@@ -202,6 +213,7 @@ class creeper:
 		loader.close()
 		cover.set_from_pixbuf(loader.get_pixbuf())
 		cover.show()
+		self.StepProgressBar(self.ProgressBar, 0.2)
 		## Packing
 		TmpHBox1 = gtk.HBox(False, 0)
 		TmpHBox1.pack_start(cover, True, True, 0)
@@ -221,6 +233,7 @@ class creeper:
 		TmpVBox1.show()
 		# New Page
 		self.NoteBook1.append_page(TmpVBox1, gtk.Label(info['Name']));
+		self.ProgressBar.set_fraction(1)
 	
 	def GetWebData(self, host, path, ConvertFlag=True):
 		get = httplib.HTTPConnection(host)
@@ -349,18 +362,27 @@ class creeper:
 		# New Page
 		self.NoteBook1.append_page(TmpScrollWin, gtk.Label(TabName))
 		
-		# Show images
-		image = gtk.Image()
-		rawimg = self.GetWebData(UrlList[0][0], UrlList[0][1], False)
-		loader = gtk.gdk.PixbufLoader()
-		loader.write(rawimg)
-		loader.close()
-		image.set_from_pixbuf(loader.get_pixbuf())
-		image.show()
-		
 		# Packing
-		TmpVBox1.pack_start(image, True, True, 0)
 		TmpScrollWin.add_with_viewport(TmpVBox1)
+
+		# Show images
+		for i in UrlList:
+			image = gtk.Image()
+			rawimg = self.GetWebData(i[0], i[1], False)
+			loader = gtk.gdk.PixbufLoader()
+			loader.write(rawimg)
+			loader.close()
+			image.set_from_pixbuf(loader.get_pixbuf())
+			image.show()
+			TmpVBox1.pack_start(image, False, True, 0)
+		
+	def StepProgressBar(self, progressbar, step):
+		current = progressbar.get_fraction()
+		if (current + step) > 1:
+			progressbar.set_fraction(current + step - 1)
+		else:
+			progressbar.set_fraction(current + step)
+
 
 if __name__ == '__main__':
 	cc = creeper()
