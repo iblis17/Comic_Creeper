@@ -122,8 +122,9 @@ class creeper:
 		# Create download manager tab page
 		## Create Tree View
 		self.DMTreeView = gtk.TreeView()
-		self.DMTreeView.pageid = self.NoteBook1.append_page(self.DMTreeView, gtk.Label('Download'))
-		
+		self.DMTreeView.pageid = self.NoteBook1.append_page(self.DMTreeView, 
+				self.NewTabLabel('Download', self.DMTreeView, self.ToggleDM))
+
 		# Packing
 		self.VBox1 = gtk.VBox(False, 0)
 		self.VBox2 = gtk.VBox(False, 0)
@@ -250,7 +251,8 @@ class creeper:
 		TmpVBox1.pack_start(TmpScrollWin, True, True, 0)
 		TmpVBox1.show()
 		# New Page
-		self.NoteBook1.append_page(TmpVBox1, gtk.Label(info['Name']));
+		self.NoteBook1.append_page(TmpVBox1, 
+				self.NewTabLabel(info['Name'], TmpVBox1));
 		self.ProgressBar.set_fraction(1)
 	
 	def GetWebData(self, host, path, ConvertFlag=True):
@@ -312,8 +314,8 @@ class creeper:
 		self.ComicID.set_text('')
 		self.StatusBar.push(0, 'Ready')
 	
-	def RemovePage(self, widget):
-		page = self.NoteBook1.get_current_page()
+	def RemovePage(self, widget, target):
+		page = self.NoteBook1.page_num(target)
 		if page == -1:
 			return
 		self.NoteBook1.remove_page(page)
@@ -380,7 +382,8 @@ class creeper:
 		TmpVBox1.show()
 		
 		# New Page
-		self.NoteBook1.append_page(TmpScrollWin, gtk.Label(TabName))
+		self.NoteBook1.append_page(TmpScrollWin, 
+				self.NewTabLabel(TabName, TmpScrollWin))
 		
 		# Packing
 		TmpScrollWin.add_with_viewport(TmpVBox1)
@@ -408,6 +411,49 @@ class creeper:
 			self.DMTreeView.hide_all()
 		else:
 			self.DMTreeView.show_all()
+
+	def NewTabLabel(self, text, widget, call_back=None):
+		"""
+		About the widget arg:
+			The button click event will pass the widget 
+			in the self.NoteBook1 to RemovePage.
+			RemovePage use this arg to get the page id,
+			then the tab will be delete.
+		call_back:
+			The default behavior of the button is call
+			self.Remove.
+			If it need anthor call back function, 
+			just pass to this arg.
+		This function will return a gtk.HBox.
+		Put a label and close button in HBox.
+		"""
+		# Label for showing text
+		label = gtk.Label(text)
+		label.show()
+		
+		# stock icon for close button
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_SMALL_TOOLBAR)
+		
+		# close button
+		button = gtk.Button()
+		button.set_relief(gtk.RELIEF_NONE)
+		button.set_focus_on_click(False)
+		button.set_size_request(22, 22)
+		button.add(icon)
+		## handle click event
+		if call_back != None:
+			button.connect('clicked', call_back)
+		else:
+			button.connect('clicked', self.RemovePage, widget)
+
+		# Packing
+		HBox = gtk.HBox()
+		HBox.pack_start(label)
+		HBox.pack_start(button, False, False)
+		HBox.show_all()
+		
+		return HBox
 
 if __name__ == '__main__':
 	cc = creeper()
