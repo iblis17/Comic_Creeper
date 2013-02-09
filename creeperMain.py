@@ -9,13 +9,11 @@ from bs4 import BeautifulSoup
 class creeper:
 	def __init__(self):
 		"""
-		- Hidding a 'main' page to keep self.NoteBook1 from being delete.
-		
 		Layout:
 		+ VBox2 --------------------------------------------------+
 		|  + MenuBar1 -------------------------------------------+|
 		|  + HBox1 ----------------------------------------------+|
-		|  | label1 | ComicID | SearchBtn | CloseBtn             ||
+		|  | label1 | ComicID | SearchBtn                        ||
 		|  +-----------------------------------------------------+|
 		|  + NoteBook1-------------------------------------------+|
 		|  |  + VBox1 ------------------------------------------+||
@@ -71,11 +69,6 @@ class creeper:
 		self.SearchBtn = gtk.Button("Commit", gtk.STOCK_OK)
 		self.SearchBtn.connect("clicked", self.Search, self.ComicID)
 		self.SearchBtn.show()
-
-		# Button for removing page
-		self.CloseBtn = gtk.Button("Close Tab")
-		self.CloseBtn.connect('clicked', self.RemovePage)
-		self.CloseBtn.show()
 
 		# Foot Separator
 		self.FSpeparator = gtk.HSeparator()
@@ -134,7 +127,6 @@ class creeper:
 		self.HBox1.pack_start(self.label1, False, True, 0)
 		self.HBox1.pack_start(self.ComicID, True, True, 0)
 		self.HBox1.pack_start(self.SearchBtn, False, True, 0)
-		self.HBox1.pack_start(self.CloseBtn, False, True, 0)
 		self.HBox1.show()
 		self.VBox1.pack_start(self.frame2, True, True, 0)
 		self.VBox1.pack_start(self.frame1, True, True, 0)
