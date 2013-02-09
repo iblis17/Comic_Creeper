@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 class creeper:
 	def __init__(self):
 		"""
+		- Hidding a 'main' page to keep self.NoteBook1 from being delete.
+		
 		Layout:
 		+ VBox2 --------------------------------------------------+
 		|  + MenuBar1 -------------------------------------------+|
@@ -37,7 +39,7 @@ class creeper:
 		"""
 		self.window = gtk.Window()
 		self.window.set_title("Comic Creeper")
-		self.window.set_size_request(600, 400)
+		self.window.set_size_request(700, 450)
 		self.window.connect("delete_event", self.delete)
 		gtk.gdk.threads_init()
 		
@@ -107,6 +109,21 @@ class creeper:
 		self.ProgressBar = gtk.ProgressBar()
 		self.ProgressBar.show()
 		
+		# Tool Bar
+		self.ToolBar = gtk.Toolbar()
+		self.ToolBar.set_style(gtk.TOOLBAR_ICONS)
+		self.ToolBar.set_tooltips(True)
+		## Download icon
+		icon = gtk.Image()
+		icon.set_from_file('./icon/download.png')
+		self.ToolBar.append_item('download', 'Download Manager', 'download', icon, self.ToggleDM)
+		self.ToolBar.show()
+		
+		# Create download manager tab page
+		## Create Tree View
+		self.DMTreeView = gtk.TreeView()
+		self.DMTreeView.pageid = self.NoteBook1.append_page(self.DMTreeView, gtk.Label('Download'))
+		
 		# Packing
 		self.VBox1 = gtk.VBox(False, 0)
 		self.VBox2 = gtk.VBox(False, 0)
@@ -120,9 +137,10 @@ class creeper:
 		self.HBox1.show()
 		self.VBox1.pack_start(self.frame2, True, True, 0)
 		self.VBox1.pack_start(self.frame1, True, True, 0)
-		self.VBox1.show()
+		self.VBox1.hide()
 		self.NoteBook1.append_page(self.VBox1, gtk.Label('main'))
 		self.VBox2.pack_start(self.MenuBar1, False, True, 0)
+		self.VBox2.pack_start(self.ToolBar, False, True, 0)
 		self.VBox2.pack_start(self.HBox1, False, True, 0)
 		self.VBox2.pack_start(self.NoteBook1, True, True, 0)
 		self.VBox2.pack_start(self.FSpeparator, False, True, 0)
@@ -296,6 +314,8 @@ class creeper:
 	
 	def RemovePage(self, widget):
 		page = self.NoteBook1.get_current_page()
+		if page == -1:
+			return
 		self.NoteBook1.remove_page(page)
 
 	def GetImgCode(self, cid):
@@ -382,7 +402,12 @@ class creeper:
 			progressbar.set_fraction(current + step - 1)
 		else:
 			progressbar.set_fraction(current + step)
-
+	
+	def ToggleDM(self, widget):
+		if self.DMTreeView.get_visible() == True:
+			self.DMTreeView.hide_all()
+		else:
+			self.DMTreeView.show_all()
 
 if __name__ == '__main__':
 	cc = creeper()
