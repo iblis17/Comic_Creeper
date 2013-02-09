@@ -1,11 +1,10 @@
 creeperMain.py:
 	Non-blocking http connection
+		Thread managment
 	Documentation strings
-	Tab-like User Interface
-	ScrollBar
-	Menu Widget
 	Use middle-click to close tabs.
 	Tool Bar
 	Zoom mode
-	Download Manger
+	Download Manager
 	BookMark
+	History Manager
