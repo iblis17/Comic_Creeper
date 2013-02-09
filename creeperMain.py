@@ -3,6 +3,7 @@ import pygtk
 pygtk.require("2.0")
 import gtk
 import httplib
+import threading
 from bs4 import BeautifulSoup
 
 class creeper:
@@ -36,6 +37,7 @@ class creeper:
 		self.window.set_title("Comic Creeper")
 		self.window.set_size_request(600, 400)
 		self.window.connect("delete_event", self.delete)
+		gtk.gdk.threads_init()
 		
 		# StatusBar
 		self.StatusBar = gtk.Statusbar()
@@ -62,12 +64,12 @@ class creeper:
 		self.ComicID.show()
 
 		# Button for handling input ID
-		self.SearchBtn = gtk.Button("Commit")
+		self.SearchBtn = gtk.Button("Commit", gtk.STOCK_OK)
 		self.SearchBtn.connect("clicked", self.Search, self.ComicID)
 		self.SearchBtn.show()
 
 		# Button for removing page
-		self.CloseBtn = gtk.Button("Close")
+		self.CloseBtn = gtk.Button("Close Tab")
 		self.CloseBtn.connect('clicked', self.RemovePage)
 		self.CloseBtn.show()
 
@@ -99,10 +101,16 @@ class creeper:
 		self.NoteBook1.set_scrollable(True)
 		self.NoteBook1.show()
 		
+		# Progress Bar
+		self.ProgressBar = gtk.ProgressBar()
+		self.ProgressBar.show()
+		
 		# Packing
 		self.VBox1 = gtk.VBox(False, 0)
 		self.VBox2 = gtk.VBox(False, 0)
 		self.HBox1 = gtk.HBox(True, 5)
+		self.HBox2 = gtk.HBox(True, 0)
+		## HBox1
 		self.HBox1.pack_start(self.label1, False, True, 0)
 		self.HBox1.pack_start(self.ComicID, True, True, 0)
 		self.HBox1.pack_start(self.SearchBtn, False, True, 0)
@@ -116,7 +124,11 @@ class creeper:
 		self.VBox2.pack_start(self.HBox1, False, True, 0)
 		self.VBox2.pack_start(self.NoteBook1, True, True, 0)
 		self.VBox2.pack_start(self.FSpeparator, False, True, 0)
-		self.VBox2.pack_start(self.StatusBar, False, True, 0)
+		## HBox2
+		self.HBox2.pack_start(self.ProgressBar, False, True, 0)
+		self.HBox2.pack_start(self.StatusBar, False, True, 0)
+		self.HBox2.show()
+		self.VBox2.pack_start(self.HBox2, False, True, 0)
 		self.VBox2.show()
 		self.window.add(self.VBox2)
 		self.window.show()
