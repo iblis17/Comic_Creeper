@@ -127,6 +127,9 @@ class creeper:
 				self.NewTabLabel('Bookmark', self.BMTreeView, self.ToggleTab, self.BMTreeView))
 		## Create Cell Renderer
 		self.BMCell1 = gtk.CellRendererText()
+		## Load db to show
+		for data in self.ExecuteDB('SELECT * FROM bookmark'):
+			self.BMTreeStore.append(None, data)
 		## Packing
 		self.BMTreeViewCol1.pack_start(self.BMCell1, True)
 		self.BMTreeViewCol1.add_attribute(self.BMCell1, 'text', 1)
@@ -272,6 +275,8 @@ class creeper:
 		TmpButton2.add(icon)
 		TmpButton2.set_tooltip_text('Add to bookmark')
 		TmpButton2.connect('clicked', self.NewBookmark, cid.get_text(), info['Name'])
+		TmpButton2.connect('clicked', lambda widget: self.ExecuteDB('''
+			INSERT INTO bookmark VALUES(?, ?)''', (cid.get_text(), info['Name'])))
 		### Packing
 		TmpHBox2 = gtk.HBox()
 		TmpHBox2.pack_end(TmpButton2, False, False, 2)
@@ -527,10 +532,14 @@ class creeper:
 		else:
 			self.Sqlcon = sqlite3.connect(db_file)
 	
-	def ExecuteDB(self, command):
+	def ExecuteDB(self, command, args=None):
 			cursor = self.Sqlcon.cursor()
-			cursor.execute(command)
+			if args == None:
+				data = cursor.execute(command)
+			else:
+				data = cursor.execute(command, args)
 			self.Sqlcon.commit()
+			return data
 
 if __name__ == '__main__':
 	cc = creeper()
