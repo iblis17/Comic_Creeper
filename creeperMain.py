@@ -106,23 +106,28 @@ class creeper:
 		## Create TreeStore
 		self.DMTreeStore = gtk.TreeStore(str)
 		## Create TreeViewColumn
-		self.DMTreeViewCol = gtk.TreeViewColumn('Name')
+		self.DMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		## Create Tree View
 		self.DMTreeView = gtk.TreeView(self.DMTreeStore)
 		self.NoteBook1.append_page(self.DMTreeView, 
 				self.NewTabLabel('Download', self.DMTreeView, self.ToggleTab, self.DMTreeView))
-		self.DMTreeView.append_column(self.DMTreeViewCol)
+		self.DMTreeView.append_column(self.DMTreeViewCol1)
 
 		# Create bookmark manager tab page
 		## Create TreeStore
-		self.BMTreeStore = gtk.TreeStore(str)
+		self.BMTreeStore = gtk.TreeStore(str, str)
 		## Create TreeViewColumn
-		self.BMTreeViewCol = gtk.TreeViewColumn('Name')
+		self.BMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		## Create Tree View
 		self.BMTreeView = gtk.TreeView(self.BMTreeStore)
 		self.NoteBook1.append_page(self.BMTreeView, 
 				self.NewTabLabel('Bookmark', self.BMTreeView, self.ToggleTab, self.BMTreeView))
-		self.BMTreeView.append_column(self.BMTreeViewCol)
+		## Create Cell Renderer
+		self.BMCell1 = gtk.CellRendererText()
+		## Packing
+		self.BMTreeViewCol1.pack_start(self.BMCell1, True)
+		self.BMTreeViewCol1.add_attribute(self.BMCell1, 'text', 1)
+		self.BMTreeView.append_column(self.BMTreeViewCol1)
 
 		# Tool Bar
 		self.ToolBar = gtk.Toolbar()
@@ -250,7 +255,9 @@ class creeper:
 		self.StepProgressBar(self.ProgressBar, 0.2)
 		## Some buttons like download, bookmark.
 		TmpButton1 = gtk.Button()
+		TmpButton1.set_focus_on_click(False)
 		TmpButton2 = gtk.Button()
+		TmpButton2.set_focus_on_click(False)
 		### style setting for buttons
 		icon = gtk.Image()
 		icon.set_from_stock(gtk.STOCK_GOTO_BOTTOM, gtk.ICON_SIZE_LARGE_TOOLBAR)
@@ -260,6 +267,7 @@ class creeper:
 		icon.set_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_LARGE_TOOLBAR)
 		TmpButton2.add(icon)
 		TmpButton2.set_tooltip_text('Add to bookmark')
+		TmpButton2.connect('clicked', self.NewBookmark, cid.get_text(), info['Name'])
 		### Packing
 		TmpHBox2 = gtk.HBox()
 		TmpHBox2.pack_end(TmpButton2, False, False, 2)
@@ -491,6 +499,12 @@ class creeper:
 		HBox.show_all()
 		
 		return HBox
+	
+	def NewBookmark(self, widget, comicid, name):
+		self.BMTreeStore.append(None, [comicid, name])
+		
+		# Update status bar message
+		self.StatusBar.push(0, name + ' added to bookmark successfully.')
 
 if __name__ == '__main__':
 	cc = creeper()
