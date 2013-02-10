@@ -113,6 +113,17 @@ class creeper:
 				self.NewTabLabel('Download', self.DMTreeView, self.ToggleTab, self.DMTreeView))
 		self.DMTreeView.append_column(self.DMTreeViewCol)
 
+		# Create bookmark manager tab page
+		## Create TreeStore
+		self.BMTreeStore = gtk.TreeStore(str)
+		## Create TreeViewColumn
+		self.BMTreeViewCol = gtk.TreeViewColumn('Name')
+		## Create Tree View
+		self.BMTreeView = gtk.TreeView(self.BMTreeStore)
+		self.NoteBook1.append_page(self.BMTreeView, 
+				self.NewTabLabel('Bookmark', self.BMTreeView, self.ToggleTab, self.BMTreeView))
+		self.BMTreeView.append_column(self.BMTreeViewCol)
+
 		# Tool Bar
 		self.ToolBar = gtk.Toolbar()
 		self.ToolBar.set_style(gtk.TOOLBAR_ICONS)
@@ -122,6 +133,11 @@ class creeper:
 		icon.set_from_file('./icon/download.png')
 		self.ToolBar.append_item('download', 'Download Manager', 'download', icon, 
 				self.ToggleTab, self.DMTreeView )
+		## Bookmark icon
+		icon = gtk.Image()
+		icon.set_from_file('./icon/bookmark.png')
+		self.ToolBar.append_item('bookmark', 'Bookmark Manager', 'bookmark', icon, 
+				self.ToggleTab, self.BMTreeView )
 		self.ToolBar.show()
 		
 		# Packing
