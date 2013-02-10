@@ -128,6 +128,7 @@ class creeper:
 		self.BMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		## Create Tree View
 		self.BMTreeView = gtk.TreeView(self.BMTreeStore)
+		self.BMTreeView.connect('row-activated', self.TreeViewClick)
 		## Create Cell Renderer
 		self.BMCell1 = gtk.CellRendererText()
 		## Create delete button
@@ -205,18 +206,19 @@ class creeper:
 
 	def Search(self, widget, cid):
 		"""
-		cid for Comic ID.
+		cid for Comic ID, a text entry.
 		"""
-		Thread(target=self.ShowIndex, args=(cid,)).start()
+		Thread(target=self.ShowIndex, args=(cid.get_text(),)).start()
 	
 	def ShowIndex(self, cid):
 		"""
 		Create a new page and put the widget into it.
+		cid for Comic ID, a string.
 		"""
 		url = 'www.8comic.com'
 		
 		# Checking input data if a numbe
-		if cid.get_text().isdigit() == False :
+		if cid.isdigit() == False :
 			self.StatusBar.push(0, "Please input a Comic ID!")
 			return
 		
@@ -227,7 +229,7 @@ class creeper:
 		# Init ProgressBar
 		self.ProgressBar.set_fraction(0)
 		
-		src = self.GetWebData(url, '/html/' + cid.get_text() + '.html')
+		src = self.GetWebData(url, '/html/' + cid + '.html')
 		self.StepProgressBar(self.ProgressBar, 0.2)
 		#gobject.idle_add(self.StepProgressBar, (self.ProgressBar, 0.2))
 		if src == None :
@@ -269,7 +271,7 @@ class creeper:
 		self.StepProgressBar(self.ProgressBar, 0.05)
 		## Get Comic Cover
 		cover = gtk.Image()
-		rawimg = self.GetWebData('www.8comic.com', '/pics/0/' + cid.get_text() + 's.jpg', False)
+		rawimg = self.GetWebData('www.8comic.com', '/pics/0/' + cid + 's.jpg', False)
 		loader = gtk.gdk.PixbufLoader()
 		loader.write(rawimg)
 		loader.close()
@@ -290,7 +292,7 @@ class creeper:
 		icon.set_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_LARGE_TOOLBAR)
 		TmpButton2.add(icon)
 		TmpButton2.set_tooltip_text('Add to bookmark')
-		TmpButton2.connect('clicked', self.NewBookmark, cid.get_text(), info['Name'])
+		TmpButton2.connect('clicked', self.NewBookmark, cid, info['Name'])
 		### Packing
 		TmpHBox2 = gtk.HBox()
 		TmpHBox2.pack_end(TmpButton2, False, False, 2)
@@ -389,7 +391,7 @@ class creeper:
 		"""
 		This function will generate a tow dimension list.
 		"""
-		src = self.GetWebData('www.8comic.com', '/view/' + cid.get_text() + '.html')
+		src = self.GetWebData('www.8comic.com', '/view/' + cid + '.html')
 		codes= BeautifulSoup(src)
 		codes = str(codes.find_all('script', src='')[-1])
 		start = codes.find('var codes=')
@@ -397,7 +399,7 @@ class creeper:
 		codes = codes[start+11:end-1].split('|')
 		
 		# Simulating the decoding
-		itemid = cid.get_text()
+		itemid = cid
 		ls = []
 		for i in codes:
 			num = i.split(' ')[0]
@@ -565,6 +567,11 @@ class creeper:
 				data = cursor.execute(command, args)
 			self.Sqlcon.commit()
 			return data
+	
+	def TreeViewClick(self, widget, iter, path):
+		model, tmpiter = widget.get_selection().get_selected()
+		comicid = model.get_value(tmpiter, 0)
+		Thread(target=self.ShowIndex, args=(comicid,)).start()
 
 if __name__ == '__main__':
 	cc = creeper()
