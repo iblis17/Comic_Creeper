@@ -102,6 +102,17 @@ class creeper:
 		self.ProgressBar = gtk.ProgressBar()
 		self.ProgressBar.show()
 		
+		# Create download manager tab page
+		## Create TreeStore
+		self.DMTreeStore = gtk.TreeStore(str)
+		## Create TreeViewColumn
+		self.DMTreeViewCol = gtk.TreeViewColumn('Name')
+		## Create Tree View
+		self.DMTreeView = gtk.TreeView(self.DMTreeStore)
+		self.NoteBook1.append_page(self.DMTreeView, 
+				self.NewTabLabel('Download', self.DMTreeView, self.ToggleTab, self.DMTreeView))
+		self.DMTreeView.append_column(self.DMTreeViewCol)
+
 		# Tool Bar
 		self.ToolBar = gtk.Toolbar()
 		self.ToolBar.set_style(gtk.TOOLBAR_ICONS)
@@ -109,15 +120,10 @@ class creeper:
 		## Download icon
 		icon = gtk.Image()
 		icon.set_from_file('./icon/download.png')
-		self.ToolBar.append_item('download', 'Download Manager', 'download', icon, self.ToggleDM)
+		self.ToolBar.append_item('download', 'Download Manager', 'download', icon, 
+				self.ToggleTab, self.DMTreeView )
 		self.ToolBar.show()
 		
-		# Create download manager tab page
-		## Create Tree View
-		self.DMTreeView = gtk.TreeView()
-		self.DMTreeView.pageid = self.NoteBook1.append_page(self.DMTreeView, 
-				self.NewTabLabel('Download', self.DMTreeView, self.ToggleDM))
-
 		# Packing
 		self.VBox1 = gtk.VBox(False, 0)
 		self.VBox2 = gtk.VBox(False, 0)
@@ -418,13 +424,13 @@ class creeper:
 		else:
 			progressbar.set_fraction(current + step)
 	
-	def ToggleDM(self, widget):
-		if self.DMTreeView.get_visible() == True:
-			self.DMTreeView.hide_all()
+	def ToggleTab(self, widget, tab):
+		if tab.get_visible() == True:
+			tab.hide_all()
 		else:
-			self.DMTreeView.show_all()
+			tab.show_all()
 
-	def NewTabLabel(self, text, widget, call_back=None):
+	def NewTabLabel(self, text, widget, call_back=None, user_data=None):
 		"""
 		About the widget arg:
 			The button click event will pass the widget 
@@ -455,7 +461,10 @@ class creeper:
 		button.add(icon)
 		## handle click event
 		if call_back != None:
-			button.connect('clicked', call_back)
+			if user_data != None:
+				button.connect('clicked', call_back, user_data)
+			else:
+				button.connect('clicked', call_back)
 		else:
 			button.connect('clicked', self.RemovePage, widget)
 
