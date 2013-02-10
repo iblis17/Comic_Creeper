@@ -123,17 +123,29 @@ class creeper:
 		self.BMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		## Create Tree View
 		self.BMTreeView = gtk.TreeView(self.BMTreeStore)
-		self.NoteBook1.append_page(self.BMTreeView, 
-				self.NewTabLabel('Bookmark', self.BMTreeView, self.ToggleTab, self.BMTreeView))
 		## Create Cell Renderer
 		self.BMCell1 = gtk.CellRendererText()
+		## Create delete button
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU)
+		button = gtk.Button()
+		button.add(icon)
+		button.set_tooltip_text('Delete the bookmark')
 		## Load db to show
 		for data in self.ExecuteDB('SELECT * FROM bookmark'):
 			self.BMTreeStore.append(None, data)
 		## Packing
+		self.HBox3 = gtk.HBox(False)
+		self.VBox3 = gtk.VBox(False)
+		self.VBox3.pack_start(button, False, False, 2)
+		self.VBox3.show()
 		self.BMTreeViewCol1.pack_start(self.BMCell1, True)
 		self.BMTreeViewCol1.add_attribute(self.BMCell1, 'text', 1)
 		self.BMTreeView.append_column(self.BMTreeViewCol1)
+		self.HBox3.pack_start(self.BMTreeView)
+		self.HBox3.pack_start(self.VBox3, False, False, 10)
+		self.NoteBook1.append_page(self.HBox3, 
+				self.NewTabLabel('Bookmark', self.HBox3, self.ToggleTab, self.HBox3))
 
 		# Tool Bar
 		self.ToolBar = gtk.Toolbar()
@@ -148,7 +160,7 @@ class creeper:
 		icon = gtk.Image()
 		icon.set_from_file('./icon/bookmark.png')
 		self.ToolBar.append_item('bookmark', 'Bookmark Manager', 'bookmark', icon, 
-				self.ToggleTab, self.BMTreeView )
+				self.ToggleTab, self.HBox3 )
 		self.ToolBar.show()
 		
 		# Packing
