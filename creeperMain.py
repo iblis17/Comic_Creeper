@@ -517,17 +517,20 @@ class creeper:
 		db_file = './db/local.db'
 		if os.path.isfile(db_file) == False:
 			self.Sqlcon = sqlite3.connect(db_file)
-			cursor = self.Sqlcon.cursor()
-			cursor.execute('''
+			self.ExecuteDB('''
 					CREATE TABLE bookmark
 					(
 						ComicID INTEGER,
 						ComicName TEXT
 					)
 					''')
-			self.Sqlcon.commit()
 		else:
 			self.Sqlcon = sqlite3.connect(db_file)
+	
+	def ExecuteDB(self, command):
+			cursor = self.Sqlcon.cursor()
+			cursor.execute(command)
+			self.Sqlcon.commit()
 
 if __name__ == '__main__':
 	cc = creeper()
