@@ -215,6 +215,7 @@ class creeper:
 		TmpLabel = gtk.Label(tmps)
 		TmpLabel.set_line_wrap(True)
 		TmpLabel.show()
+		del tmps
 		self.StepProgressBar(self.ProgressBar, 0.05)
 		## Get Comic Cover
 		cover = gtk.Image()
@@ -225,13 +226,33 @@ class creeper:
 		cover.set_from_pixbuf(loader.get_pixbuf())
 		cover.show()
 		self.StepProgressBar(self.ProgressBar, 0.2)
+		## Some buttons like download, bookmark.
+		TmpButton1 = gtk.Button()
+		TmpButton2 = gtk.Button()
+		### style setting for buttons
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_GOTO_BOTTOM, gtk.ICON_SIZE_LARGE_TOOLBAR)
+		TmpButton1.add(icon)
+		TmpButton1.set_tooltip_text('Download')
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_LARGE_TOOLBAR)
+		TmpButton2.add(icon)
+		TmpButton2.set_tooltip_text('Add to bookmark')
+		### Packing
+		TmpHBox2 = gtk.HBox()
+		TmpHBox2.pack_end(TmpButton2, False, False, 2)
+		TmpHBox2.pack_end(TmpButton1, False, False)
+		TmpHBox2.show_all()
 		## Packing
 		TmpHBox1 = gtk.HBox(False, 0)
+		TmpVBox2 = gtk.VBox(False, 0)
 		TmpHBox1.pack_start(cover, True, True, 0)
 		TmpHBox1.pack_start(TmpLabel, True, True, 0)
 		TmpHBox1.show()
-		TmpFrame2.add(TmpHBox1)
-		del tmps
+		TmpVBox2.pack_start(TmpHBox2, False, False, 0)
+		TmpVBox2.pack_start(TmpHBox1, True, True, 0)
+		TmpVBox2.show()
+		TmpFrame2.add(TmpVBox2)
 		
 		# Packing
 		TmpVBox1 = gtk.VBox(False, 0)
@@ -248,12 +269,11 @@ class creeper:
 		self.ProgressBar.set_fraction(1)
 	
 	def GetWebData(self, host, path, ConvertFlag=True):
+		self.StatusBar.push(0, 'Loading')
 		get = httplib.HTTPConnection(host)
-		
 		get.request('GET', path, '', {'Referer': 'http://' + host + '/',
 			'User-Agent': 'Mozilla/5.0  AppleWebKit/537.11 (KHTML, like Gecko)\
 			Chromium/23.0.1271.97 Chrome/23.0.1271.97 Safari/537.11'})
-		self.StatusBar.push(0, 'Loading')
 		index = get.getresponse()
 		self.StatusBar.push(0, str(index.status) + ' ' + index.reason)
 		
