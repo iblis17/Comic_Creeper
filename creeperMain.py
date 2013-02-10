@@ -3,6 +3,8 @@ import pygtk
 pygtk.require("2.0")
 import gtk, gobject
 import httplib
+import sqlite3
+import os
 from threading import Thread
 from bs4 import BeautifulSoup
 
@@ -40,6 +42,7 @@ class creeper:
 		self.window.set_size_request(700, 450)
 		self.window.connect("delete_event", self.delete)
 		gtk.gdk.threads_init()
+		self.InitDB()
 		
 		# StatusBar
 		self.StatusBar = gtk.Statusbar()
@@ -177,6 +180,7 @@ class creeper:
 		gtk.main()
 	
 	def delete(self, widget, event):
+		self.Sqlcon.close()
 		gtk.main_quit()
 		return False
 
@@ -502,9 +506,28 @@ class creeper:
 	
 	def NewBookmark(self, widget, comicid, name):
 		self.BMTreeStore.append(None, [comicid, name])
-		
 		# Update status bar message
 		self.StatusBar.push(0, name + ' added to bookmark successfully.')
+	
+	def InitDB(self):
+		"""
+		if the file does not exist, 
+		build the table we need.
+		"""
+		db_file = './db/local.db'
+		if os.path.isfile(db_file) == False:
+			self.Sqlcon = sqlite3.connect(db_file)
+			cursor = self.Sqlcon.cursor()
+			cursor.execute('''
+					CREATE TABLE bookmark
+					(
+						ComicID INTEGER,
+						ComicName TEXT
+					)
+					''')
+			self.Sqlcon.commit()
+		else:
+			self.Sqlcon = sqlite3.connect(db_file)
 
 if __name__ == '__main__':
 	cc = creeper()
