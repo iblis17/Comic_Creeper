@@ -275,8 +275,6 @@ class creeper:
 		TmpButton2.add(icon)
 		TmpButton2.set_tooltip_text('Add to bookmark')
 		TmpButton2.connect('clicked', self.NewBookmark, cid.get_text(), info['Name'])
-		TmpButton2.connect('clicked', lambda widget: self.ExecuteDB('''
-			INSERT INTO bookmark VALUES(?, ?)''', (cid.get_text(), info['Name'])))
 		### Packing
 		TmpHBox2 = gtk.HBox()
 		TmpHBox2.pack_end(TmpButton2, False, False, 2)
@@ -510,9 +508,19 @@ class creeper:
 		return HBox
 	
 	def NewBookmark(self, widget, comicid, name):
-		self.BMTreeStore.append(None, [comicid, name])
-		# Update status bar message
-		self.StatusBar.push(0, name + ' added to bookmark successfully.')
+		"""
+		First, checking if there exists same record already.
+		"""
+		check = self.ExecuteDB(
+				'SELECT * FROM bookmark WHERE ComicID=?',
+				(comicid,))
+		if check == None:
+			self.BMTreeStore.append(None, [comicid, name])
+			self.ExecuteDB(''' INSERT INTO bookmark VALUES(?, ?)''',
+					(cid.get_text(), info['Name']))
+			self.StatusBar.push(0, name + ' added to bookmark successfully.')
+		else:
+			self.StatusBar.push(0, name + ' has been added in your bookmark!')
 	
 	def InitDB(self):
 		"""
@@ -526,7 +534,8 @@ class creeper:
 					CREATE TABLE bookmark
 					(
 						ComicID INTEGER,
-						ComicName TEXT
+						ComicName TEXT,
+						PRIMARY KEY (ComicID)
 					)
 					''')
 		else:
