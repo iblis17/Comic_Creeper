@@ -529,14 +529,14 @@ class creeper:
 		"""
 		check = self.ExecuteDB(
 				'SELECT * FROM bookmark WHERE ComicID=?',
-				(comicid,))
+				(comicid,)).fetchone()
 		if check == None:
 			self.BMTreeStore.append(None, [comicid, name])
 			self.ExecuteDB(''' INSERT INTO bookmark VALUES(?, ?)''',
-					(cid.get_text(), info['Name']))
+					(comicid, name))
 			self.StatusBar.push(0, name + ' added to bookmark successfully.')
 		else:
-			self.StatusBar.push(0, name + ' has been added in your bookmark!')
+			self.StatusBar.push(0, name + ' in your bookmark already!')
 	
 	def InitDB(self):
 		"""
