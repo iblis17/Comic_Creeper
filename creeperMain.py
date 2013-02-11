@@ -122,6 +122,10 @@ class creeper:
 		self.DMTreeView.append_column(self.DMTreeViewCol1)
 		self.DMTreeView.append_column(self.DMTreeViewCol2)
 		self.DMTreeView.append_column(self.DMTreeViewCol3)
+		## Create Scroll Window
+		TmpScrollWin = gtk.ScrolledWindow()
+		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		TmpScrollWin.add_with_viewport(self.DMTreeView)
 		## Packing
 		self.HBox4 = gtk.HBox(False)
 		self.VBox4 = gtk.VBox(False)
@@ -131,7 +135,7 @@ class creeper:
 		self.DMTreeViewCol1.add_attribute(self.DMCell1, 'text', 1)
 		self.DMTreeViewCol2.add_attribute(self.DMCell2, 'text', 2)
 		self.DMTreeViewCol3.add_attribute(self.DMCell3, 'value', 3)
-		self.HBox4.pack_start(self.DMTreeView)
+		self.HBox4.pack_start(TmpScrollWin)
 		self.HBox4.pack_start(self.VBox4, False, False, 10)
 		self.NoteBook1.append_page(self.HBox4, 
 				self.NewTabLabel('Download', self.HBox4, self.ToggleTab, self.HBox4))
@@ -153,6 +157,10 @@ class creeper:
 		button.add(icon)
 		button.connect('clicked', self.BMTreeViewDel, self.BMTreeView)
 		button.set_tooltip_text('Delete the bookmark')
+		## Create Scroll Window
+		TmpScrollWin = gtk.ScrolledWindow()
+		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		TmpScrollWin.add_with_viewport(self.BMTreeView)
 		## Load db to show
 		for data in self.ExecuteDB('SELECT * FROM bookmark'):
 			self.BMTreeStore.append(None, data)
@@ -163,7 +171,7 @@ class creeper:
 		self.BMTreeViewCol1.pack_start(self.BMCell1, True)
 		self.BMTreeViewCol1.add_attribute(self.BMCell1, 'text', 1)
 		self.BMTreeView.append_column(self.BMTreeViewCol1)
-		self.HBox3.pack_start(self.BMTreeView)
+		self.HBox3.pack_start(TmpScrollWin)
 		self.HBox3.pack_start(self.VBox3, False, False, 10)
 		self.NoteBook1.append_page(self.HBox3, 
 				self.NewTabLabel('Bookmark', self.HBox3, self.ToggleTab, self.HBox3))
