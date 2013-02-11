@@ -209,7 +209,9 @@ class creeper:
 		"""
 		cid for Comic ID, a text entry.
 		"""
-		Thread(target=self.ShowIndex, args=(cid.get_text(),)).start()
+		t = Thread(target=self.ShowIndex, args=(cid.get_text(),))
+		t.daemon = True
+		t.start()
 	
 	def ShowIndex(self, cid):
 		"""
