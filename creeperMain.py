@@ -267,6 +267,8 @@ class creeper:
 		tmps = '%s\n%s:\t%s' % (tmps, 'Intro', info['Intro'])
 		TmpLabel = gtk.Label(tmps)
 		TmpLabel.set_line_wrap(True)
+		TmpLabel.connect('size-allocate', 
+				lambda label, allocation: label.set_size_request(allocation.width - 20 , -1))
 		TmpLabel.show()
 		del tmps
 		self.StepProgressBar(self.ProgressBar, 0.05)
