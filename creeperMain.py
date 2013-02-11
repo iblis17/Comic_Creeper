@@ -128,7 +128,7 @@ class creeper:
 		self.BMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		## Create Tree View
 		self.BMTreeView = gtk.TreeView(self.BMTreeStore)
-		self.BMTreeView.connect('row-activated', self.TreeViewClick)
+		self.BMTreeView.connect('row-activated', self.BMTreeViewClick)
 		## Create Cell Renderer
 		self.BMCell1 = gtk.CellRendererText()
 		## Create delete button
@@ -136,6 +136,7 @@ class creeper:
 		icon.set_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU)
 		button = gtk.Button()
 		button.add(icon)
+		button.connect('clicked', self.BMTreeViewDel, self.BMTreeView)
 		button.set_tooltip_text('Delete the bookmark')
 		## Load db to show
 		for data in self.ExecuteDB('SELECT * FROM bookmark'):
@@ -560,19 +561,30 @@ class creeper:
 			self.Sqlcon = sqlite3.connect(db_file)
 	
 	def ExecuteDB(self, command, args=None):
-			cursor = self.Sqlcon.cursor()
-			if args == None:
-				data = cursor.execute(command)
-			else:
-				data = cursor.execute(command, args)
-			self.Sqlcon.commit()
-			return data
+		"""
+		args must be a list.
+		"""
+		cursor = self.Sqlcon.cursor()
+		if args == None:
+			data = cursor.execute(command)
+		else:
+			data = cursor.execute(command, args)
+		self.Sqlcon.commit()
+		return data
 	
-	def TreeViewClick(self, widget, iter, path):
+	def BMTreeViewClick(self, widget, iter, path):
 		model, tmpiter = widget.get_selection().get_selected()
 		comicid = model.get_value(tmpiter, 0)
 		Thread(target=self.ShowIndex, args=(comicid,)).start()
-
+	
+	def BMTreeViewDel(self, widget, target):
+		model, tmpiter = target.get_selection().get_selected()
+		if tmpiter != None:
+			comicid = model.get_value(tmpiter, 0)
+			self.ExecuteDB('''
+			DELETE FROM bookmark WHERE ComicID=?''', (comicid,))
+			model.remove(tmpiter)
+	
 if __name__ == '__main__':
 	cc = creeper()
 	cc.main()
