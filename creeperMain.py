@@ -250,10 +250,7 @@ class creeper:
 		for i in range(0, row):
 			for j in range(0, 5 if num > 5 else num):
 				btn = gtk.Button(index[k])
-				btn.connect('clicked', 
-						lambda widget, UrlList, TabName:
-							Thread(target=self.ShowImgPage, args=(widget, UrlList, TabName)).start()
-						, imgcode[k], index[k])
+				btn.connect('clicked', self.ShowImgPage_thread, imgcode[k], index[k])
 				k += 1
 				TmpTable.attach(btn, j, j+1, i, i+1)
 				btn.show()
@@ -468,7 +465,15 @@ class creeper:
 			image.set_from_pixbuf(loader.get_pixbuf())
 			image.show()
 			TmpVBox1.pack_start(image, False, True, 0)
-		
+	
+	def ShowImgPage_thread(self, widget, UrlList, TabName):
+		"""
+		Let ShowImgPage run in a thread.
+		"""
+		t = Thread(target=self.ShowImgPage, args=(widget, UrlList, TabName))
+		t.daemon = True
+		t.start()
+	
 	def StepProgressBar(self, progressbar, step):
 		current = progressbar.get_fraction()
 		if (current + step) > 1:
