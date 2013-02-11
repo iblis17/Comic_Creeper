@@ -5,6 +5,7 @@ import gtk, gobject
 import httplib
 import sqlite3
 import os
+import datetime
 from threading import Thread
 from bs4 import BeautifulSoup
 
@@ -106,16 +107,30 @@ class creeper:
 		self.ProgressBar.show()
 		
 		# Create download manager tab page
-		## Create TreeStore
-		self.DMTreeStore = gtk.TreeStore(str)
+		## Create TreeStore : (comic id, comic name, time)
+		self.DMTreeStore = gtk.TreeStore(str, str, str, float)
 		## Create TreeViewColumn
 		self.DMTreeViewCol1 = gtk.TreeViewColumn('Name')
+		self.DMTreeViewCol2 = gtk.TreeViewColumn('Time')
+		self.DMTreeViewCol3 = gtk.TreeViewColumn('Progress')
+		## Create Cell Renderer
+		self.DMCell1 = gtk.CellRendererText()
+		self.DMCell2 = gtk.CellRendererText()
+		self.DMCell3 = gtk.CellRendererProgress()
 		## Create Tree View
 		self.DMTreeView = gtk.TreeView(self.DMTreeStore)
 		self.DMTreeView.append_column(self.DMTreeViewCol1)
+		self.DMTreeView.append_column(self.DMTreeViewCol2)
+		self.DMTreeView.append_column(self.DMTreeViewCol3)
 		## Packing
 		self.HBox4 = gtk.HBox(False)
 		self.VBox4 = gtk.VBox(False)
+		self.DMTreeViewCol1.pack_start(self.DMCell1, True)
+		self.DMTreeViewCol2.pack_start(self.DMCell2, True)
+		self.DMTreeViewCol3.pack_start(self.DMCell3, True)
+		self.DMTreeViewCol1.add_attribute(self.DMCell1, 'text', 1)
+		self.DMTreeViewCol2.add_attribute(self.DMCell2, 'text', 2)
+		self.DMTreeViewCol3.add_attribute(self.DMCell3, 'value', 3)
 		self.HBox4.pack_start(self.DMTreeView)
 		self.HBox4.pack_start(self.VBox4, False, False, 10)
 		self.NoteBook1.append_page(self.HBox4, 
@@ -218,6 +233,7 @@ class creeper:
 		Create a new page and put the widget into it.
 		cid for Comic ID, a string.
 		"""
+		self.StatusBar.push(0, 'Loading')
 		url = 'www.8comic.com'
 		
 		# Checking input data if a numbe
@@ -289,6 +305,7 @@ class creeper:
 		icon = gtk.Image()
 		icon.set_from_stock(gtk.STOCK_GOTO_BOTTOM, gtk.ICON_SIZE_LARGE_TOOLBAR)
 		TmpButton1.add(icon)
+		TmpButton1.connect('clicked', self.DownloadAll, cid, info['Name'], imgcode, index)
 		TmpButton1.set_tooltip_text('Download')
 		icon = gtk.Image()
 		icon.set_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_LARGE_TOOLBAR)
@@ -324,18 +341,18 @@ class creeper:
 		self.NoteBook1.append_page(TmpVBox1, 
 				self.NewTabLabel(info['Name'], TmpVBox1));
 		self.ProgressBar.set_fraction(1)
+		self.StatusBar.push(0, 'Ready')
 	
 	def GetWebData(self, host, path, ConvertFlag=True):
-		self.StatusBar.push(0, 'Loading')
 		get = httplib.HTTPConnection(host)
 		get.request('GET', path, '', {'Referer': 'http://' + host + '/',
 			'User-Agent': 'Mozilla/5.0  AppleWebKit/537.11 (KHTML, like Gecko)\
 			Chromium/23.0.1271.97 Chrome/23.0.1271.97 Safari/537.11'})
 		index = get.getresponse()
-		self.StatusBar.push(0, str(index.status) + ' ' + index.reason)
 		
 		# Checking http status code
 		if index.status != 200:
+			self.StatusBar.push(0, str(index.status) + ' ' + index.reason)
 			get.close()
 			return
 		
@@ -594,6 +611,45 @@ class creeper:
 			DELETE FROM bookmark WHERE ComicID=?''', (comicid,))
 			model.remove(tmpiter)
 	
+	def DownloadAll(self, widget, cid, cname, imgcode, index):
+		"""
+		This is a call back function for download button
+		in the index page.
+			- If the download_dir do not exist,
+			it will try to create it.
+			- Add a new download record to download manager
+			- Write record to db.
+			- Let download progress run in threads.
+		"""
+		download_dir = './Download/'
+		timestr = datetime.datetime.now().strftime('%Y-%m-%d %P %H:%M')
+		
+		# check dir
+		if os.path.exists(download_dir) == False:
+			os.mkdir(download_dir)
+		
+		# Added a new record
+		row = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0))
+		self.StatusBar.push(0, 'Start to download: ' + cname)
+		# Tread
+		def down_task():
+			# get totle img count
+			imgcount = 0.0
+			for i in imgcode:
+				for j in i:
+					imgcount += 1
+			step = 100 / imgcount
+			# get img and update progress bar
+			for i in imgcode:
+				for j in i:
+					self.GetWebData(j[0], j[1], False)
+					current = self.DMTreeStore.get_value(row, 3)
+					self.DMTreeStore.set_value(row, 3, current + step)
+			self.StatusBar.push(0, 'Finished download: ' + cname)
+		t = Thread(target=down_task)
+		t.daemon = True
+		t.start()
+		
 if __name__ == '__main__':
 	cc = creeper()
 	cc.main()
