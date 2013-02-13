@@ -642,19 +642,32 @@ class creeper:
 		self.StatusBar.push(0, 'Start to download: ' + cname)
 		# Tread
 		def down_task():
+			# check comic dir
+			comic_dir = download_dir + '/' + cname
+			if os.path.exists(comic_dir) == False:
+				os.mkdir(comic_dir)
 			# get totle img count
 			imgcount = 0.0
 			for i in imgcode:
 				for j in i:
 					imgcount += 1
 			step = 100 / imgcount
-			# get img and update progress bar
-			for i in imgcode:
-				for j in i:
-					self.GetWebData(j[0], j[1], False)
+			
+			for i in range(0, len(index)):
+				# create index dir in comic_dir
+				index_dir = comic_dir + '/' + index[i]
+				if os.path.exists(index_dir) == False:
+					os.mkdir(index_dir)
+				# fetch img
+				for j in imgcode[i]:
+					img_name = j[1].split('/')[-1].split('_')[0] + '.jpg'
+					img_file = open(index_dir + '/' + img_name, 'w')
+					img_file.write( self.GetWebData(j[0], j[1], False) )
+					img_file.close()
 					current = self.DMTreeStore.get_value(row, 3)
 					self.DMTreeStore.set_value(row, 3, current + step)
 			self.StatusBar.push(0, 'Finished download: ' + cname)
+		
 		t = Thread(target=down_task)
 		t.daemon = True
 		t.start()
