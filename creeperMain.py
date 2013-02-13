@@ -661,7 +661,7 @@ class creeper:
 				# fetch img
 				for j in imgcode[i]:
 					img_name = j[1].split('/')[-1].split('_')[0] + '.jpg'
-					img_file = open(index_dir + '/' + img_name, 'w')
+					img_file = open(index_dir + '/' + img_name, 'wb')
 					img_file.write( self.GetWebData(j[0], j[1], False) )
 					img_file.close()
 					current = self.DMTreeStore.get_value(row, 3)
