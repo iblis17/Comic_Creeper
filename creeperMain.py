@@ -2,10 +2,7 @@
 import pygtk
 pygtk.require("2.0")
 import gtk, gobject
-import httplib
-import sqlite3
-import os
-import datetime
+import httplib, sqlite3, os, sys, datetime
 from threading import Thread
 from bs4 import BeautifulSoup
 
@@ -42,6 +39,7 @@ class creeper:
 		self.window.set_title("Comic Creeper")
 		self.window.set_size_request(700, 450)
 		self.window.connect("delete_event", self.delete)
+		self.FileDir = os.path.realpath(os.path.dirname(sys.argv[0]))
 		gtk.gdk.threads_init()
 		self.InitDB()
 		
@@ -182,12 +180,12 @@ class creeper:
 		self.ToolBar.set_tooltips(True)
 		## Download icon
 		icon = gtk.Image()
-		icon.set_from_file('./icon/download.png')
+		icon.set_from_file( self.FileDir + '/icon/download.png')
 		self.ToolBar.append_item('download', 'Download Manager', 'download', icon, 
 				self.ToggleTab, self.HBox4 )
 		## Bookmark icon
 		icon = gtk.Image()
-		icon.set_from_file('./icon/bookmark.png')
+		icon.set_from_file( self.FileDir +  '/icon/bookmark.png')
 		self.ToolBar.append_item('bookmark', 'Bookmark Manager', 'bookmark', icon, 
 				self.ToggleTab, self.HBox3 )
 		self.ToolBar.show()
@@ -580,7 +578,10 @@ class creeper:
 		if the file does not exist, 
 		build the table we need.
 		"""
-		db_file = './db/local.db'
+		db_dir = self.FileDir + '/db'
+		db_file = db_dir + '/local.db'
+		if os.path.exists(db_dir) == False:
+			os.mkdir(db_dir)
 		if os.path.isfile(db_file) == False:
 			self.Sqlcon = sqlite3.connect(db_file)
 			self.ExecuteDB('''
@@ -629,7 +630,7 @@ class creeper:
 			- Write record to db.
 			- Let download progress run in threads.
 		"""
-		download_dir = './Download/'
+		download_dir = self.FileDir + '/Download/'
 		timestr = datetime.datetime.now().strftime('%Y-%m-%d %P %H:%M')
 		
 		# check dir
