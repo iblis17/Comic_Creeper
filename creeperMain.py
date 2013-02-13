@@ -631,7 +631,7 @@ class creeper:
 			- Let download progress run in threads.
 		"""
 		download_dir = self.FileDir + '/Download/'
-		timestr = datetime.datetime.now().strftime('%Y-%m-%d %P %H:%M')
+		timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M')
 		
 		# check dir
 		if os.path.exists(download_dir) == False:
