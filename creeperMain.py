@@ -146,7 +146,7 @@ class creeper:
 		self.BMTreeViewCol2 = gtk.TreeViewColumn('ID')
 		## Create Tree View
 		self.BMTreeView = gtk.TreeView(self.BMTreeStore)
-		self.BMTreeView.connect('row-activated', self.BMTreeViewClick)
+		self.BMTreeView.connect('row-activated', self.TreeViewClickRow)
 		self.BMTreeView.append_column(self.BMTreeViewCol1)
 		self.BMTreeView.append_column(self.BMTreeViewCol2)
 		## Create Cell Renderer
@@ -157,7 +157,7 @@ class creeper:
 		icon.set_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU)
 		button = gtk.Button()
 		button.add(icon)
-		button.connect('clicked', self.BMTreeViewDel, self.BMTreeView)
+		button.connect('clicked', self.BMTreeViewDel)
 		button.set_tooltip_text('Delete the bookmark')
 		## Create Scroll Window
 		TmpScrollWin = gtk.ScrolledWindow()
@@ -179,6 +179,52 @@ class creeper:
 		self.NoteBook1.append_page(self.HBox3, 
 				self.NewTabLabel('Bookmark', self.HBox3, self.ToggleTab, self.HBox3))
 
+		# Create history manager tab page
+		## Create TreeStore : (ComicID, Name, Time)
+		self.HMTreeStore = gtk.TreeStore(str, str, str)
+		## Create TreeViewColumn
+		self.HMTreeViewCol1 = gtk.TreeViewColumn('Name')
+		self.HMTreeViewCol2 = gtk.TreeViewColumn('ID')
+		self.HMTreeViewCol3 = gtk.TreeViewColumn('Time')
+		## Create Tree View
+		self.HMTreeView = gtk.TreeView(self.HMTreeStore)
+		self.HMTreeView.connect('row-activated', self.TreeViewClickRow)
+		self.HMTreeView.append_column(self.HMTreeViewCol1)
+		self.HMTreeView.append_column(self.HMTreeViewCol2)
+		self.HMTreeView.append_column(self.HMTreeViewCol3)
+		## Create Cell Renderer
+		self.HMCell1 = gtk.CellRendererText()
+		self.HMCell2 = gtk.CellRendererText()
+		self.HMCell3 = gtk.CellRendererText()
+		## Create delete button
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU)
+		button = gtk.Button()
+		button.add(icon)
+		button.connect('clicked', self.HMTreeViewDel)
+		button.set_tooltip_text('Delete the history')
+		## Create Scroll Window
+		TmpScrollWin = gtk.ScrolledWindow()
+		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		TmpScrollWin.add_with_viewport(self.HMTreeView)
+		## Load db to show
+		for data in self.ExecuteDB('SELECT * FROM history'):
+			self.HMTreeStore.append(None, data)
+		## Packing
+		self.HBox5 = gtk.HBox(False)
+		self.VBox5 = gtk.VBox(False)
+		self.VBox5.pack_start(button, False, False, 2)
+		self.HMTreeViewCol1.pack_start(self.HMCell1, True)
+		self.HMTreeViewCol2.pack_start(self.HMCell2, True)
+		self.HMTreeViewCol3.pack_start(self.HMCell3, True)
+		self.HMTreeViewCol1.add_attribute(self.HMCell1, 'text', 1)
+		self.HMTreeViewCol2.add_attribute(self.HMCell2, 'text', 0)
+		self.HMTreeViewCol3.add_attribute(self.HMCell3, 'text', 2)
+		self.HBox5.pack_start(TmpScrollWin)
+		self.HBox5.pack_start(self.VBox5, False, False, 10)
+		self.NoteBook1.append_page(self.HBox5, 
+				self.NewTabLabel('History', self.HBox5, self.ToggleTab, self.HBox5))
+		
 		# Tool Bar
 		self.ToolBar = gtk.Toolbar()
 		self.ToolBar.set_style(gtk.TOOLBAR_ICONS)
@@ -193,6 +239,11 @@ class creeper:
 		icon.set_from_file( self.FileDir +  '/icon/bookmark.png')
 		self.ToolBar.append_item('bookmark', 'Bookmark Manager', 'bookmark', icon, 
 				self.ToggleTab, self.HBox3 )
+		## History icon
+		icon = gtk.Image()
+		icon.set_from_file( self.FileDir +  '/icon/history.png')
+		self.ToolBar.append_item('history', 'History Manager', 'history', icon, 
+				self.ToggleTab, self.HBox5 )
 		self.ToolBar.show()
 		
 		# Packing
@@ -298,6 +349,8 @@ class creeper:
 		TmpLabel.show()
 		del tmps
 		self.StepProgressBar(self.ProgressBar, 0.05)
+		## log
+		self.LogHistory(cid, info['Name'])
 		## Get Comic Cover
 		cover = gtk.Image()
 		rawimg = self.GetWebData('www.8comic.com', '/pics/0/' + cid + 's.jpg', False)
@@ -588,7 +641,7 @@ class creeper:
 		if os.path.exists(db_dir) == False:
 			os.mkdir(db_dir)
 		if os.path.isfile(db_file) == False:
-			self.Sqlcon = sqlite3.connect(db_file)
+			self.Sqlcon = sqlite3.connect(db_file, check_same_thread=False)
 			self.ExecuteDB('''
 					CREATE TABLE bookmark
 					(
@@ -597,8 +650,17 @@ class creeper:
 						PRIMARY KEY (ComicID)
 					)
 					''')
+			self.ExecuteDB('''
+					CREATE TABLE history
+					(
+						ComicID INTEGER,
+						ComicName TEXT,
+						Time TEXT,
+						PRIMARY KEY (ComicID)
+					)
+					''')
 		else:
-			self.Sqlcon = sqlite3.connect(db_file)
+			self.Sqlcon = sqlite3.connect(db_file, check_same_thread=False)
 	
 	def ExecuteDB(self, command, args=None):
 		"""
@@ -612,17 +674,25 @@ class creeper:
 		self.Sqlcon.commit()
 		return data
 	
-	def BMTreeViewClick(self, widget, iter, path):
+	def TreeViewClickRow(self, widget, iter, path):
 		model, tmpiter = widget.get_selection().get_selected()
 		comicid = model.get_value(tmpiter, 0)
 		Thread(target=self.ShowIndex, args=(comicid,)).start()
 	
-	def BMTreeViewDel(self, widget, target):
-		model, tmpiter = target.get_selection().get_selected()
+	def BMTreeViewDel(self, widget):
+		model, tmpiter = self.BMTreeView.get_selection().get_selected()
 		if tmpiter != None:
 			comicid = model.get_value(tmpiter, 0)
-			self.ExecuteDB('''
-			DELETE FROM bookmark WHERE ComicID=?''', (comicid,))
+			self.ExecuteDB('DELETE FROM bookmark WHERE ComicID=?',
+					(comicid,))
+			model.remove(tmpiter)
+	
+	def HMTreeViewDel(self, widget):
+		model, tmpiter = self.HMTreeView.get_selection().get_selected()
+		if tmpiter != None:
+			timestr = model.get_value(tmpiter, 2).decode('utf8')
+			self.ExecuteDB('DELETE FROM history WHERE Time=?',
+					(timestr,))
 			model.remove(tmpiter)
 	
 	def DownloadAll(self, widget, cid, cname, imgcode, index):
@@ -676,7 +746,13 @@ class creeper:
 		t = Thread(target=down_task)
 		t.daemon = True
 		t.start()
-		
+	
+	def LogHistory(self, comicid, cname):
+		timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M').decode('utf8')
+		self.HMTreeStore.append(None, [comicid, cname, timestr])
+		self.ExecuteDB('INSERT INTO history VALUES(?, ?, ?)',
+				(comicid, cname, timestr))
+	
 if __name__ == '__main__':
 	cc = creeper()
 	cc.main()
