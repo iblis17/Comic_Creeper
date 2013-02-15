@@ -247,6 +247,11 @@ class creeper:
 		label1 = gtk.Label('Download Directory:')
 		entry1 = gtk.Entry()
 		entry1.set_text(self.config['DownloadDir'])
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_OPEN, gtk.ICON_SIZE_BUTTON)
+		button1 = gtk.Button()
+		button1.add(icon)
+		button1.connect('clicked', self.SelectDownloadDir, entry1)
 		save_button = gtk.Button('Save', gtk.STOCK_SAVE)
 		save_button.connect('clicked', self.SaveConfig, 'DownloadDir', entry1)
 		## Packing
@@ -254,6 +259,7 @@ class creeper:
 		self.VBox6 = gtk.VBox()
 		self.HBox6.pack_start(label1, False, True)
 		self.HBox6.pack_start(entry1, True, True)
+		self.HBox6.pack_start(button1, False, False)
 		self.VBox6.pack_start(self.HBox6, False, True)
 		self.VBox6.pack_end(save_button, False, True)
 		self.NoteBook1.append_page(self.VBox6, 
@@ -266,23 +272,23 @@ class creeper:
 		## Download icon
 		icon = gtk.Image()
 		icon.set_from_file( self.config['FileDir'] + '/icon/download.png')
-		self.ToolBar.append_item('download', 'Download Manager', 'download', icon, 
+		self.ToolBar.append_item('download', 'Download Manager', 'download', icon,
 				self.ToggleTab, self.HBox4 )
 		## Bookmark icon
 		icon = gtk.Image()
 		icon.set_from_file( self.config['IconDir'] +  '/bookmark.png')
-		self.ToolBar.append_item('bookmark', 'Bookmark Manager', 'bookmark', icon, 
+		self.ToolBar.append_item('bookmark', 'Bookmark Manager', 'bookmark', icon,
 				self.ToggleTab, self.HBox3 )
-		## History icon
-		icon = gtk.Image()
-		icon.set_from_file( self.config['IconDir'] +  '/history.png')
-		self.ToolBar.append_item('history', 'History Manager', 'history', icon, 
-				self.ToggleTab, self.HBox5 )
 		## Config icon
 		icon = gtk.Image()
 		icon.set_from_file( self.config['IconDir'] +  '/config.png')
-		self.ToolBar.append_item('config', 'Config Manager', 'config', icon, 
+		self.ToolBar.append_item('config', 'Config Manager', 'config', icon,
 				self.ToggleTab, self.VBox6 )
+		## History icon
+		icon = gtk.Image()
+		icon.set_from_file( self.config['IconDir'] +  '/history.png')
+		self.ToolBar.append_item('history', 'History Manager', 'history', icon,
+				self.ToggleTab, self.HBox5 )
 		self.ToolBar.show()
 		
 		# Packing
@@ -813,6 +819,19 @@ class creeper:
 		# setting dictionary
 		self.config[key] = val
 		self.StatusBar.push(0, 'Configuration saved!')
+	
+	def SelectDownloadDir(self, widget, val_entry):
+		val = val_entry.get_text()
+		dialog = gtk.FileChooserDialog('Choose a directory',
+						None,
+						gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
+						(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+							gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+		dialog.set_current_folder(val)
+		res = dialog.run()
+		if res == gtk.RESPONSE_OK:
+			val_entry.set_text(dialog.get_filename())
+		dialog.destroy()
 	
 if __name__ == '__main__':
 	cc = creeper()
