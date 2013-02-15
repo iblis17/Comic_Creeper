@@ -199,10 +199,17 @@ class creeper:
 		## Create delete button
 		icon = gtk.Image()
 		icon.set_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU)
-		button = gtk.Button()
-		button.add(icon)
-		button.connect('clicked', self.HMTreeViewDel)
-		button.set_tooltip_text('Delete the history')
+		button1 = gtk.Button()
+		button1.add(icon)
+		button1.connect('clicked', self.HMTreeViewDel)
+		button1.set_tooltip_text('Delete the history')
+		## Create delete_all button
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_CLEAR, gtk.ICON_SIZE_MENU)
+		button2 = gtk.Button()
+		button2.add(icon)
+		button2.connect('clicked', self.HMTreeViewDelAll)
+		button2.set_tooltip_text('Delete all the history')
 		## Create Scroll Window
 		TmpScrollWin = gtk.ScrolledWindow()
 		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -213,7 +220,8 @@ class creeper:
 		## Packing
 		self.HBox5 = gtk.HBox(False)
 		self.VBox5 = gtk.VBox(False)
-		self.VBox5.pack_start(button, False, False, 2)
+		self.VBox5.pack_start(button1, False, False, 2)
+		self.VBox5.pack_start(button2, False, False, 2)
 		self.HMTreeViewCol1.pack_start(self.HMCell1, True)
 		self.HMTreeViewCol2.pack_start(self.HMCell2, True)
 		self.HMTreeViewCol3.pack_start(self.HMCell3, True)
@@ -694,6 +702,10 @@ class creeper:
 			self.ExecuteDB('DELETE FROM history WHERE Time=?',
 					(timestr,))
 			model.remove(tmpiter)
+	
+	def HMTreeViewDelAll(self, widget):
+		self.HMTreeStore.clear()
+		self.ExecuteDB('DELETE FROM history')
 	
 	def DownloadAll(self, widget, cid, cname, imgcode, index):
 		"""
