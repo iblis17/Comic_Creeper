@@ -39,9 +39,19 @@ class creeper:
 		self.window.set_title("Comic Creeper")
 		self.window.set_size_request(700, 450)
 		self.window.connect("delete_event", self.delete)
-		self.FileDir = os.path.realpath(os.path.dirname(sys.argv[0]))
 		gtk.gdk.threads_init()
+		
+		# Default Configuration
+		self.config = {}
+		self.config['FileDir'] = os.path.realpath(os.path.dirname(sys.argv[0]))
+		self.config['IconDir'] = self.config['FileDir'] + '/icon'
+		self.config['DownloadDir'] = self.config['FileDir'] + '/Download'
+
 		self.InitDB()
+		
+		# Load configuration from db
+		for i in self.ExecuteDB('SELECT * FROM config'):
+			self.config[i[0]] = i[1]
 		
 		# StatusBar
 		self.StatusBar = gtk.Statusbar()
@@ -233,25 +243,46 @@ class creeper:
 		self.NoteBook1.append_page(self.HBox5, 
 				self.NewTabLabel('History', self.HBox5, self.ToggleTab, self.HBox5))
 		
+		# Create Config manager tab
+		label1 = gtk.Label('Download Directory:')
+		entry1 = gtk.Entry()
+		entry1.set_text(self.config['DownloadDir'])
+		save_button = gtk.Button('Save', gtk.STOCK_SAVE)
+		save_button.connect('clicked', self.SaveConfig, 'DownloadDir', entry1)
+		## Packing
+		self.HBox6 = gtk.HBox()
+		self.VBox6 = gtk.VBox()
+		self.HBox6.pack_start(label1, False, True)
+		self.HBox6.pack_start(entry1, True, True)
+		self.VBox6.pack_start(self.HBox6, False, True)
+		self.VBox6.pack_end(save_button, False, True)
+		self.NoteBook1.append_page(self.VBox6, 
+				self.NewTabLabel('Config', self.VBox6, self.ToggleTab, self.VBox6))
+		
 		# Tool Bar
 		self.ToolBar = gtk.Toolbar()
 		self.ToolBar.set_style(gtk.TOOLBAR_ICONS)
 		self.ToolBar.set_tooltips(True)
 		## Download icon
 		icon = gtk.Image()
-		icon.set_from_file( self.FileDir + '/icon/download.png')
+		icon.set_from_file( self.config['FileDir'] + '/icon/download.png')
 		self.ToolBar.append_item('download', 'Download Manager', 'download', icon, 
 				self.ToggleTab, self.HBox4 )
 		## Bookmark icon
 		icon = gtk.Image()
-		icon.set_from_file( self.FileDir +  '/icon/bookmark.png')
+		icon.set_from_file( self.config['IconDir'] +  '/bookmark.png')
 		self.ToolBar.append_item('bookmark', 'Bookmark Manager', 'bookmark', icon, 
 				self.ToggleTab, self.HBox3 )
 		## History icon
 		icon = gtk.Image()
-		icon.set_from_file( self.FileDir +  '/icon/history.png')
+		icon.set_from_file( self.config['IconDir'] +  '/history.png')
 		self.ToolBar.append_item('history', 'History Manager', 'history', icon, 
 				self.ToggleTab, self.HBox5 )
+		## Config icon
+		icon = gtk.Image()
+		icon.set_from_file( self.config['IconDir'] +  '/config.png')
+		self.ToolBar.append_item('config', 'Config Manager', 'config', icon, 
+				self.ToggleTab, self.VBox6 )
 		self.ToolBar.show()
 		
 		# Packing
@@ -644,7 +675,7 @@ class creeper:
 		if the file does not exist, 
 		build the table we need.
 		"""
-		db_dir = self.FileDir + '/db'
+		db_dir = self.config['FileDir'] + '/db'
 		db_file = db_dir + '/local.db'
 		if os.path.exists(db_dir) == False:
 			os.mkdir(db_dir)
@@ -664,6 +695,13 @@ class creeper:
 						ComicID INTEGER,
 						ComicName TEXT,
 						Time TEXT
+					)
+					''')
+			self.ExecuteDB('''
+					CREATE TABLE config
+					(
+						Key TEXT,
+						Val TEXT
 					)
 					''')
 		else:
@@ -716,7 +754,7 @@ class creeper:
 			- Write record to db.
 			- Let download progress run in threads.
 		"""
-		download_dir = self.FileDir + '/Download/'
+		download_dir = self.config['DownloadDir']
 		timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M')
 		
 		# check dir
@@ -763,6 +801,17 @@ class creeper:
 		self.HMTreeStore.append(None, [comicid, cname, timestr])
 		self.ExecuteDB('INSERT INTO history VALUES(?, ?, ?)',
 				(comicid, cname, timestr))
+	
+	def SaveConfig(self, widget, key, val_entry):
+		val = val_entry.get_text()
+		# setting db
+		check = self.ExecuteDB('SELECT * FROM config WHERE key=?', (key,)).fetchone()
+		if check != None:
+			self.ExecuteDB('UPDATE config SET val=? WHERE key=?', (val, key))
+		else:
+			self.ExecuteDB('INSERT INTO config VALUES (?, ?)', (key, val))
+		# setting dictionary
+		self.config[key] = val
 	
 if __name__ == '__main__':
 	cc = creeper()
