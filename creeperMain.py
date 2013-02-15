@@ -812,6 +812,7 @@ class creeper:
 			self.ExecuteDB('INSERT INTO config VALUES (?, ?)', (key, val))
 		# setting dictionary
 		self.config[key] = val
+		self.StatusBar.push(0, 'Configuration saved!')
 	
 if __name__ == '__main__':
 	cc = creeper()
