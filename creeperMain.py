@@ -663,8 +663,7 @@ class creeper:
 					(
 						ComicID INTEGER,
 						ComicName TEXT,
-						Time TEXT,
-						PRIMARY KEY (ComicID)
+						Time TEXT
 					)
 					''')
 		else:
