@@ -143,11 +143,15 @@ class creeper:
 		self.BMTreeStore = gtk.TreeStore(str, str)
 		## Create TreeViewColumn
 		self.BMTreeViewCol1 = gtk.TreeViewColumn('Name')
+		self.BMTreeViewCol2 = gtk.TreeViewColumn('ID')
 		## Create Tree View
 		self.BMTreeView = gtk.TreeView(self.BMTreeStore)
 		self.BMTreeView.connect('row-activated', self.BMTreeViewClick)
+		self.BMTreeView.append_column(self.BMTreeViewCol1)
+		self.BMTreeView.append_column(self.BMTreeViewCol2)
 		## Create Cell Renderer
 		self.BMCell1 = gtk.CellRendererText()
+		self.BMCell2 = gtk.CellRendererText()
 		## Create delete button
 		icon = gtk.Image()
 		icon.set_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU)
@@ -167,8 +171,9 @@ class creeper:
 		self.VBox3 = gtk.VBox(False)
 		self.VBox3.pack_start(button, False, False, 2)
 		self.BMTreeViewCol1.pack_start(self.BMCell1, True)
+		self.BMTreeViewCol2.pack_start(self.BMCell2, True)
 		self.BMTreeViewCol1.add_attribute(self.BMCell1, 'text', 1)
-		self.BMTreeView.append_column(self.BMTreeViewCol1)
+		self.BMTreeViewCol2.add_attribute(self.BMCell2, 'text', 0)
 		self.HBox3.pack_start(TmpScrollWin)
 		self.HBox3.pack_start(self.VBox3, False, False, 10)
 		self.NoteBook1.append_page(self.HBox3, 
