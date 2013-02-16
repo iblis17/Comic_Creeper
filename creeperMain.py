@@ -610,10 +610,15 @@ class creeper:
 			progressbar.set_fraction(current + step)
 	
 	def ToggleTab(self, widget, tab):
+		num = self.NoteBook1.page_num(tab)
 		if tab.get_visible() == True:
-			tab.hide_all()
+			if self.NoteBook1.get_current_page() != num:
+				self.NoteBook1.set_current_page(num)
+			else:
+				tab.hide_all()
 		else:
 			tab.show_all()
+			self.NoteBook1.set_current_page(num)
 
 	def NewTabLabel(self, text, widget, call_back=None, user_data=None):
 		"""
