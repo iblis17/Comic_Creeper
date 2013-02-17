@@ -690,8 +690,13 @@ class creeper:
 		db_file = db_dir + '/local.db'
 		if os.path.exists(db_dir) == False:
 			os.mkdir(db_dir)
-		if os.path.isfile(db_file) == False:
-			self.Sqlcon = sqlite3.connect(db_file, check_same_thread=False)
+		# checking the table exist or not
+		self.Sqlcon = sqlite3.connect(db_file, check_same_thread=False)
+		check = {}
+		for i in ('bookmark', 'history', 'config'):
+			check[i] = self.ExecuteDB('SELECT * FROM SQLITE_MASTER WHERE name=?', (i,)).fetchone()
+			print check[i]
+		if check['bookmark'] == None:
 			self.ExecuteDB('''
 					CREATE TABLE bookmark
 					(
@@ -700,6 +705,7 @@ class creeper:
 						PRIMARY KEY (ComicID)
 					)
 					''')
+		if check['history'] == None:
 			self.ExecuteDB('''
 					CREATE TABLE history
 					(
@@ -708,6 +714,7 @@ class creeper:
 						Time TEXT
 					)
 					''')
+		if check['config'] == None:
 			self.ExecuteDB('''
 					CREATE TABLE config
 					(
@@ -715,8 +722,6 @@ class creeper:
 						Val TEXT
 					)
 					''')
-		else:
-			self.Sqlcon = sqlite3.connect(db_file, check_same_thread=False)
 	
 	def ExecuteDB(self, command, args=None):
 		"""
