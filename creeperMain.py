@@ -146,7 +146,7 @@ class creeper:
 		self.HBox4.pack_start(TmpScrollWin)
 		self.HBox4.pack_start(self.VBox4, False, False, 10)
 		self.NoteBook1.append_page(self.HBox4, 
-				self.NewTabLabel('Download', self.HBox4, self.ToggleTab, self.HBox4))
+				self.NewTabLabel('Download', self.HBox4, self.ToggleTab, self.HBox4, True))
 
 		# Create bookmark manager tab page
 		## Create TreeStore
@@ -187,7 +187,7 @@ class creeper:
 		self.HBox3.pack_start(TmpScrollWin)
 		self.HBox3.pack_start(self.VBox3, False, False, 10)
 		self.NoteBook1.append_page(self.HBox3, 
-				self.NewTabLabel('Bookmark', self.HBox3, self.ToggleTab, self.HBox3))
+				self.NewTabLabel('Bookmark', self.HBox3, self.ToggleTab, self.HBox3, True))
 
 		# Create history manager tab page
 		## Create TreeStore : (ComicID, Name, Time)
@@ -241,7 +241,7 @@ class creeper:
 		self.HBox5.pack_start(TmpScrollWin)
 		self.HBox5.pack_start(self.VBox5, False, False, 10)
 		self.NoteBook1.append_page(self.HBox5, 
-				self.NewTabLabel('History', self.HBox5, self.ToggleTab, self.HBox5))
+				self.NewTabLabel('History', self.HBox5, self.ToggleTab, self.HBox5, True))
 		
 		# Create Config manager tab
 		label1 = gtk.Label('Download Directory:')
@@ -263,7 +263,7 @@ class creeper:
 		self.VBox6.pack_start(self.HBox6, False, True)
 		self.VBox6.pack_end(save_button, False, True)
 		self.NoteBook1.append_page(self.VBox6, 
-				self.NewTabLabel('Config', self.VBox6, self.ToggleTab, self.VBox6))
+				self.NewTabLabel('Config', self.VBox6, self.ToggleTab, self.VBox6, True))
 		
 		# Tool Bar
 		self.ToolBar = gtk.Toolbar()
@@ -609,10 +609,15 @@ class creeper:
 		else:
 			progressbar.set_fraction(current + step)
 	
-	def ToggleTab(self, widget, tab):
+	def ToggleTab(self, widget, tab, delete_direct=False):
+		"""
+		The close button on the tab label should let 'delete_direct' be true.
+		"""
 		num = self.NoteBook1.page_num(tab)
 		if tab.get_visible() == True:
-			if self.NoteBook1.get_current_page() != num:
+			if delete_direct == True:
+				tab.hide_all()
+			elif self.NoteBook1.get_current_page() != num:
 				self.NoteBook1.set_current_page(num)
 			else:
 				tab.hide_all()
@@ -620,7 +625,7 @@ class creeper:
 			tab.show_all()
 			self.NoteBook1.set_current_page(num)
 
-	def NewTabLabel(self, text, widget, call_back=None, user_data=None):
+	def NewTabLabel(self, text, widget, call_back=None, *user_data):
 		"""
 		About the widget arg:
 			The button click event will pass the widget 
@@ -652,7 +657,7 @@ class creeper:
 		## handle click event
 		if call_back != None:
 			if user_data != None:
-				button.connect('clicked', call_back, user_data)
+				button.connect('clicked', call_back, *user_data)
 			else:
 				button.connect('clicked', call_back)
 		else:
@@ -695,7 +700,6 @@ class creeper:
 		check = {}
 		for i in ('bookmark', 'history', 'config'):
 			check[i] = self.ExecuteDB('SELECT * FROM SQLITE_MASTER WHERE name=?', (i,)).fetchone()
-			print check[i]
 		if check['bookmark'] == None:
 			self.ExecuteDB('''
 					CREATE TABLE bookmark
