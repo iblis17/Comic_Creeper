@@ -121,6 +121,9 @@ class creeper:
 		self.DMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		self.DMTreeViewCol2 = gtk.TreeViewColumn('Time')
 		self.DMTreeViewCol3 = gtk.TreeViewColumn('Progress')
+		self.DMTreeViewCol1.set_resizable(True)
+		self.DMTreeViewCol2.set_resizable(True)
+		self.DMTreeViewCol3.set_resizable(True)
 		## Create Cell Renderer
 		self.DMCell1 = gtk.CellRendererText()
 		self.DMCell2 = gtk.CellRendererText()
@@ -154,6 +157,8 @@ class creeper:
 		## Create TreeViewColumn
 		self.BMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		self.BMTreeViewCol2 = gtk.TreeViewColumn('ID')
+		self.BMTreeViewCol1.set_resizable(True)
+		self.BMTreeViewCol2.set_resizable(True)
 		## Create Tree View
 		self.BMTreeView = gtk.TreeView(self.BMTreeStore)
 		self.BMTreeView.connect('row-activated', self.TreeViewClickRow)
@@ -196,6 +201,9 @@ class creeper:
 		self.HMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		self.HMTreeViewCol2 = gtk.TreeViewColumn('ID')
 		self.HMTreeViewCol3 = gtk.TreeViewColumn('Time')
+		self.HMTreeViewCol1.set_resizable(True)
+		self.HMTreeViewCol2.set_resizable(True)
+		self.HMTreeViewCol3.set_resizable(True)
 		## Create Tree View
 		self.HMTreeView = gtk.TreeView(self.HMTreeStore)
 		self.HMTreeView.connect('row-activated', self.TreeViewClickRow)
