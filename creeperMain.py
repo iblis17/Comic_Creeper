@@ -422,7 +422,8 @@ class creeper:
 		icon = gtk.Image()
 		icon.set_from_stock(gtk.STOCK_GOTO_BOTTOM, gtk.ICON_SIZE_LARGE_TOOLBAR)
 		TmpButton1.add(icon)
-		TmpButton1.connect('clicked', self.DownloadAll, cid, info['Name'], imgcode, index)
+		#TmpButton1.connect('clicked', self.DownloadAll, cid, info['Name'], imgcode, index)
+		TmpButton1.connect('clicked', self.DownloadMenu, cid, info['Name'], imgcode, index)
 		TmpButton1.set_tooltip_text('Download')
 		icon = gtk.Image()
 		icon.set_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_LARGE_TOOLBAR)
@@ -823,6 +824,78 @@ class creeper:
 		t = Thread(target=down_task)
 		t.daemon = True
 		t.start()
+	
+	def DownloadMenu(self, widget, cid, cname, imgcode, index):
+		# function
+		def check_toggled(cell, row):
+			index_store[row][0] = not index_store[row][0]
+		# download dialog
+		dialog = gtk.Dialog('Download Menu',
+						None,
+						gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
+						(gtk.STOCK_OK, gtk.RESPONSE_OK,
+						gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+		dialog.set_size_request(640, 480)
+		# download dir selection
+		label1 = gtk.Label('Download Directory: ')
+		entry1 = gtk.Entry()
+		entry1.set_text(self.config['DownloadDir'])
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_OPEN, gtk.ICON_SIZE_BUTTON)
+		button1 = gtk.Button()
+		button1.add(icon)
+		button1.connect('clicked', self.SelectDownloadDir, entry1)
+		# tree view for selection
+		index_store = gtk.TreeStore(bool, str)
+		index_col1 = gtk.TreeViewColumn('#')
+		index_col2 = gtk.TreeViewColumn('Name')
+		index_col1.set_resizable(True)
+		index_col2.set_resizable(True)
+		index_cell1 = gtk.CellRendererToggle()
+		index_cell1.set_activatable(True)
+		index_cell1.connect('toggled', check_toggled)
+		index_cell2 = gtk.CellRendererText()
+		index_col1.pack_start(index_cell1, True)
+		index_col2.pack_start(index_cell2, True)
+		index_col1.add_attribute(index_cell1, 'active', 0)
+		index_col2.add_attribute(index_cell2, 'text', 1)
+		index_tree = gtk.TreeView(index_store)
+		index_selection = index_tree.get_selection()
+		index_selection.set_mode(gtk.SELECTION_MULTIPLE)
+		index_selection.selected_foreach(check_toggled)
+		index_tree.append_column(index_col1)
+		index_tree.append_column(index_col2)
+		index_scroll = gtk.ScrolledWindow()
+		index_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+		index_scroll.add_with_viewport(index_tree)
+		## Add index row
+		for i in index:
+			index_store.append(None, (False, i))
+		# some tool button
+		def sel_all_toggled(widget):
+			if widget.get_active():
+				for i in index_store:
+					i[0] = True
+			else:
+				for i in index_store:
+					i[0] = False
+		
+		select_all = gtk.CheckButton('Select all')
+		select_all.connect('toggled', sel_all_toggled)
+		# Packing
+		HBox1 = gtk.HBox()
+		HBox1.pack_start(label1, False, False, 2)
+		HBox1.pack_start(entry1, True, True)
+		HBox1.pack_start(button1, False, False, 2)
+		HBox2 = gtk.HBox()
+		HBox2.pack_start(select_all, False, False, 2)
+		dialog.vbox.pack_start(HBox1, False, True)
+		dialog.vbox.pack_start(HBox2, False, True)
+		dialog.vbox.pack_start(index_scroll, True, True)
+		dialog.vbox.show_all()
+		
+		res = dialog.run()
+		dialog.destroy()
 	
 	def LogHistory(self, comicid, cname):
 		timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M').decode('utf8')
