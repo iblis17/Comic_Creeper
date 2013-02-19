@@ -115,7 +115,7 @@ class creeper:
 		self.ProgressBar.show()
 		
 		# Create download manager tab page
-		## Create TreeStore : (comic id, comic name, time)
+		## Create TreeStore : (comic id, comic name, time, progress)
 		self.DMTreeStore = gtk.TreeStore(str, str, str, float)
 		## Create TreeViewColumn
 		self.DMTreeViewCol1 = gtk.TreeViewColumn('Name')
@@ -136,7 +136,8 @@ class creeper:
 		## Create Scroll Window
 		TmpScrollWin = gtk.ScrolledWindow()
 		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		TmpScrollWin.add_with_viewport(self.DMTreeView)
+		TmpScrollWin.set_vadjustment(self.DMTreeView.get_vadjustment())
+		TmpScrollWin.add(self.DMTreeView)
 		## Packing
 		self.HBox4 = gtk.HBox(False)
 		self.VBox4 = gtk.VBox(False)
@@ -177,7 +178,8 @@ class creeper:
 		## Create Scroll Window
 		TmpScrollWin = gtk.ScrolledWindow()
 		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		TmpScrollWin.add_with_viewport(self.BMTreeView)
+		TmpScrollWin.set_vadjustment(self.BMTreeView.get_vadjustment())
+		TmpScrollWin.add(self.BMTreeView)
 		## Load db to show
 		for data in self.ExecuteDB('SELECT * FROM bookmark'):
 			self.BMTreeStore.append(None, data)
@@ -231,7 +233,8 @@ class creeper:
 		## Create Scroll Window
 		TmpScrollWin = gtk.ScrolledWindow()
 		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		TmpScrollWin.add_with_viewport(self.HMTreeView)
+		TmpScrollWin.set_vadjustment(self.HMTreeView.get_vadjustment())
+		TmpScrollWin.add(self.HMTreeView)
 		## Load db to show
 		for data in self.ExecuteDB('SELECT * FROM history'):
 			self.HMTreeStore.append(None, data)
@@ -867,7 +870,8 @@ class creeper:
 		index_tree.append_column(index_col2)
 		index_scroll = gtk.ScrolledWindow()
 		index_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-		index_scroll.add_with_viewport(index_tree)
+		index_scroll.set_vadjustment(index_tree.get_vadjustment())
+		index_scroll.add(index_tree)
 		## Add index row
 		for i in index:
 			index_store.append(None, (False, i))
@@ -895,6 +899,12 @@ class creeper:
 		dialog.vbox.show_all()
 		
 		res = dialog.run()
+		if res == gtk.RESPONSE_OK:
+			timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M').decode('utf8')
+			piter = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0))
+			for i in index_store:
+				if i[0]:
+					self.DMTreeStore.append(piter, (cid, i[1], None, 0.0))
 		dialog.destroy()
 	
 	def LogHistory(self, comicid, cname):
