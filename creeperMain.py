@@ -930,9 +930,16 @@ class creeper:
 		
 		res = dialog.run()
 		if res == gtk.RESPONSE_OK:
-			print entry1.get_text()
-			self.DownloadSelect(widget, cid, cname, imgcode,
-					index, index_store, entry1.get_text())
+			for i in index_store:
+				if i[0]:
+					self.DownloadSelect(widget, cid, cname, imgcode,
+							index, index_store, entry1.get_text())
+					break
+			else:
+				m = gtk.MessageDialog(type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK)
+				m.set_markup('Please choose some to download!')
+				m.run()
+				m.destroy()
 		dialog.destroy()
 	
 	def LogHistory(self, comicid, cname):
