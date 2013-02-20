@@ -710,7 +710,7 @@ class creeper:
 		# checking the table exist or not
 		self.Sqlcon = sqlite3.connect(db_file, check_same_thread=False)
 		check = {}
-		for i in ('bookmark', 'history', 'config'):
+		for i in ('bookmark', 'history', 'config', 'download'):
 			check[i] = self.ExecuteDB('SELECT * FROM SQLITE_MASTER WHERE name=?', (i,)).fetchone()
 		if check['bookmark'] == None:
 			self.ExecuteDB('''
@@ -736,6 +736,16 @@ class creeper:
 					(
 						Key TEXT,
 						Val TEXT
+					)
+					''')
+		if check['download'] == None:
+			self.ExecuteDB('''
+					CREATE TABLE download
+					(
+						ComicID TEXT,
+						ComicName TEXT,
+						ComicIndex TEXT, 
+						Time TEXT
 					)
 					''')
 	
@@ -776,7 +786,7 @@ class creeper:
 		self.HMTreeStore.clear()
 		self.ExecuteDB('DELETE FROM history')
 	
-	def DownloadSelect(self, widget, cid, cname, imgcode, index, index_store):
+	def DownloadSelect(self, widget, cid, cname, imgcode, index, index_store, download_dir):
 		"""
 		This is a call back function for download button
 		in the index page.
@@ -786,7 +796,6 @@ class creeper:
 			- Write record to db.
 			- Let download progress run in threads.
 		"""
-		download_dir = self.config['DownloadDir']
 		timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M')
 		
 		# check dir
@@ -797,10 +806,14 @@ class creeper:
 		piter = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0))
 		self.StatusBar.push(0, 'Start to download: ' + cname)
 		citer = {}
+		db_index = ''# the string stored in db
 		for i in index_store:
 			if i[0]:
 				k = index.index(i[1])
 				citer[k] = self.DMTreeStore.append(piter, (cid, i[1], None, 0.0))
+				db_index += (i[1] + '|')
+		db_index = db_index[:-1]
+		## Wirte record to db
 		# Tread
 		def down_task():
 			# check comic dir
@@ -841,7 +854,6 @@ class creeper:
 					self.DMTreeStore.set_value(citer[k], 3, 100)
 			self.DMTreeStore.set_value(piter, 3, 100)
 			self.StatusBar.push(0, 'Finished download: ' + cname)
-		
 		t = Thread(target=down_task)
 		t.daemon = True
 		t.start()
@@ -918,7 +930,9 @@ class creeper:
 		
 		res = dialog.run()
 		if res == gtk.RESPONSE_OK:
-			self.DownloadSelect(widget, cid, cname, imgcode, index, index_store)
+			print entry1.get_text()
+			self.DownloadSelect(widget, cid, cname, imgcode,
+					index, index_store, entry1.get_text())
 		dialog.destroy()
 	
 	def LogHistory(self, comicid, cname):
