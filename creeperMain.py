@@ -776,7 +776,7 @@ class creeper:
 		self.HMTreeStore.clear()
 		self.ExecuteDB('DELETE FROM history')
 	
-	def DownloadAll(self, widget, cid, cname, imgcode, index):
+	def DownloadSelect(self, widget, cid, cname, imgcode, index, index_store):
 		"""
 		This is a call back function for download button
 		in the index page.
@@ -794,8 +794,13 @@ class creeper:
 			os.mkdir(download_dir)
 		
 		# Added a new record
-		row = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0))
+		piter = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0))
 		self.StatusBar.push(0, 'Start to download: ' + cname)
+		citer = {}
+		for i in index_store:
+			if i[0]:
+				k = index.index(i[1])
+				citer[k] = self.DMTreeStore.append(piter, (cid, i[1], None, 0.0))
 		# Tread
 		def down_task():
 			# check comic dir
@@ -804,24 +809,37 @@ class creeper:
 				os.mkdir(comic_dir)
 			# get totle img count
 			imgcount = 0.0
-			for i in imgcode:
-				for j in i:
-					imgcount += 1
+			for i in index_store:
+				if i[0]:
+					k = index.index(i[1])
+					for j in imgcode[k]:
+						imgcount += 1
 			step = 100 / imgcount
 			
-			for i in range(0, len(index)):
-				# create index dir in comic_dir
-				index_dir = comic_dir + '/' + index[i]
-				if os.path.exists(index_dir) == False:
-					os.mkdir(index_dir)
-				# fetch img
-				for j in imgcode[i]:
-					img_name = j[1].split('/')[-1].split('_')[0] + '.jpg'
-					img_file = open(index_dir + '/' + img_name, 'wb')
-					img_file.write( self.GetWebData(j[0], j[1], False) )
-					img_file.close()
-					current = self.DMTreeStore.get_value(row, 3)
-					self.DMTreeStore.set_value(row, 3, current + step)
+			for i in index_store:
+				if i[0]:
+					# create index dir in comic_dir
+					index_dir = comic_dir + '/' + i[1]
+					if os.path.exists(index_dir) == False:
+						os.mkdir(index_dir)
+					k = index.index(i[1])
+					# get img count of index
+					index_count = 0.0
+					for j in imgcode[k]:
+						index_count += 1
+					index_step = 100 / index_count
+					# fetch img
+					for j in imgcode[k]:
+						img_name = j[1].split('/')[-1].split('_')[0] + '.jpg'
+						img_file = open(index_dir + '/' + img_name, 'wb')
+						img_file.write( self.GetWebData(j[0], j[1], False) )
+						img_file.close()
+						current = self.DMTreeStore.get_value(piter, 3)
+						self.DMTreeStore.set_value(piter, 3, current + step)
+						current = self.DMTreeStore.get_value(citer[k], 3)
+						self.DMTreeStore.set_value(citer[k], 3, current + index_step)
+					self.DMTreeStore.set_value(citer[k], 3, 100)
+			self.DMTreeStore.set_value(piter, 3, 100)
 			self.StatusBar.push(0, 'Finished download: ' + cname)
 		
 		t = Thread(target=down_task)
@@ -900,11 +918,7 @@ class creeper:
 		
 		res = dialog.run()
 		if res == gtk.RESPONSE_OK:
-			timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M').decode('utf8')
-			piter = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0))
-			for i in index_store:
-				if i[0]:
-					self.DMTreeStore.append(piter, (cid, i[1], None, 0.0))
+			self.DownloadSelect(widget, cid, cname, imgcode, index, index_store)
 		dialog.destroy()
 	
 	def LogHistory(self, comicid, cname):
