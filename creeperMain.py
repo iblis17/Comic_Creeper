@@ -122,11 +122,11 @@ class creeper:
 		self.DMTreeViewCol2 = gtk.TreeViewColumn('Time')
 		self.DMTreeViewCol3 = gtk.TreeViewColumn('Progress')
 		self.DMTreeViewCol4 = gtk.TreeViewColumn('Directory')
-		self.DMTreeViewCol3.set_fixed_width(200)
-		self.DMTreeViewCol3.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
 		self.DMTreeViewCol1.set_resizable(True)
 		self.DMTreeViewCol2.set_resizable(True)
 		self.DMTreeViewCol3.set_resizable(True)
+		self.DMTreeViewCol3.set_fixed_width(200)
+		self.DMTreeViewCol3.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
 		self.DMTreeViewCol4.set_resizable(True)
 		## Create Cell Renderer
 		self.DMCell1 = gtk.CellRendererText()
