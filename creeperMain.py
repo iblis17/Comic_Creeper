@@ -115,8 +115,8 @@ class creeper:
 		self.ProgressBar.show()
 		
 		# Create download manager tab page
-		## Create TreeStore : (comic id, comic name, time, progress, download_dir)
-		self.DMTreeStore = gtk.TreeStore(str, str, str, float, str)
+		## Create TreeStore : (comic id, comic name, time, progress, download_dir, status)
+		self.DMTreeStore = gtk.TreeStore(str, str, str, float, str, str)
 		## Create TreeViewColumn
 		self.DMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		self.DMTreeViewCol2 = gtk.TreeViewColumn('Time')
@@ -133,6 +133,7 @@ class creeper:
 		self.DMCell2 = gtk.CellRendererText()
 		self.DMCell3 = gtk.CellRendererProgress()
 		self.DMCell4 = gtk.CellRendererText()
+		self.DMCell5 = gtk.CellRendererPixbuf()
 		## Create Tree View
 		self.DMTreeView = gtk.TreeView(self.DMTreeStore)
 		self.DMTreeView.append_column(self.DMTreeViewCol1)
@@ -153,25 +154,28 @@ class creeper:
 		TmpScrollWin.add(self.DMTreeView)
 		## Load db record
 		for i in self.ExecuteDB('SELECT * FROM download'):
-			piter = self.DMTreeStore.append(None, (i[0], i[1], i[3], 100, i[4]))
+			piter = self.DMTreeStore.append(None, (i[0], i[1], i[3], 100, i[4], gtk.STOCK_YES))
 			for j in i[2].split('|'):
-				self.DMTreeStore.append(piter, (i[0], j, None, 100, None))
+				self.DMTreeStore.append(piter, (i[0], j, None, 100, None, None))
 		## Packing
 		self.HBox4 = gtk.HBox(False)
 		self.VBox4 = gtk.VBox(False)
+		self.DMTreeViewCol1.pack_start(self.DMCell5, True)
 		self.DMTreeViewCol1.pack_start(self.DMCell1, True)
 		self.DMTreeViewCol2.pack_start(self.DMCell2, True)
 		self.DMTreeViewCol3.pack_start(self.DMCell3, True)
 		self.DMTreeViewCol4.pack_start(self.DMCell4, True)
-		self.DMTreeViewCol1.add_attribute(self.DMCell1, 'text', 1)
-		self.DMTreeViewCol2.add_attribute(self.DMCell2, 'text', 2)
-		self.DMTreeViewCol3.add_attribute(self.DMCell3, 'value', 3)
-		self.DMTreeViewCol4.add_attribute(self.DMCell4, 'text', 4)
 		self.VBox4.pack_start(button1, False, False, 2)
 		self.HBox4.pack_start(TmpScrollWin)
 		self.HBox4.pack_start(self.VBox4, False, False, 10)
 		self.NoteBook1.append_page(self.HBox4, 
 				self.NewTabLabel('Download', self.HBox4, self.ToggleTab, self.HBox4, True))
+		## Render Cells
+		self.DMTreeViewCol1.add_attribute(self.DMCell1, 'text', 1)
+		self.DMTreeViewCol1.add_attribute(self.DMCell5, 'stock-id', 5)
+		self.DMTreeViewCol2.add_attribute(self.DMCell2, 'text', 2)
+		self.DMTreeViewCol3.add_attribute(self.DMCell3, 'value', 3)
+		self.DMTreeViewCol4.add_attribute(self.DMCell4, 'text', 4)
 
 		# Create bookmark manager tab page
 		## Create TreeStore
@@ -831,14 +835,15 @@ class creeper:
 			os.mkdir(download_dir)
 		
 		# Added a new record
-		piter = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0, download_dir))
+		piter = self.DMTreeStore.append(None,
+				(cid, cname, timestr, 0.0, download_dir, gtk.STOCK_GOTO_BOTTOM))
 		self.StatusBar.push(0, 'Start to download: ' + cname)
 		citer = {}
 		db_index = ''# the string stored in db
 		for i in index_store:
 			if i[0]:
 				k = index.index(i[1])
-				citer[k] = self.DMTreeStore.append(piter, (cid, i[1], None, 0.0, None))
+				citer[k] = self.DMTreeStore.append(piter, (cid, i[1], None, 0.0, None, None))
 				db_index += (i[1] + '|')
 		db_index = db_index[:-1]
 		# Tread
@@ -880,6 +885,7 @@ class creeper:
 						self.DMTreeStore.set_value(citer[k], 3, current + index_step)
 					self.DMTreeStore.set_value(citer[k], 3, 100)
 			self.DMTreeStore.set_value(piter, 3, 100)
+			self.DMTreeStore.set_value(piter, 5, gtk.STOCK_YES)
 			self.StatusBar.push(0, 'Finished download: ' + cname)
 			# Wirte record to db after finishing download
 			self.ExecuteDB('INSERT INTO download VALUES(?, ?, ?, ?, ?)',
