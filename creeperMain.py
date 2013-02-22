@@ -593,7 +593,7 @@ class creeper:
 		m.show()
 	
 	def CommitComicID(self, widget, event):
-		if event.keyval == 65293:
+		if (event.keyval == 65293) or (event.keyval == 65421):
 			self.Search(widget, self.ComicID)
 	
 	def ShowImgPage(self, widget, UrlList, TabName):
