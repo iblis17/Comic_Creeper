@@ -115,38 +115,51 @@ class creeper:
 		self.ProgressBar.show()
 		
 		# Create download manager tab page
-		## Create TreeStore : (comic id, comic name, time, progress)
-		self.DMTreeStore = gtk.TreeStore(str, str, str, float)
+		## Create TreeStore : (comic id, comic name, time, progress, download_dir)
+		self.DMTreeStore = gtk.TreeStore(str, str, str, float, str)
 		## Create TreeViewColumn
 		self.DMTreeViewCol1 = gtk.TreeViewColumn('Name')
 		self.DMTreeViewCol2 = gtk.TreeViewColumn('Time')
 		self.DMTreeViewCol3 = gtk.TreeViewColumn('Progress')
+		self.DMTreeViewCol4 = gtk.TreeViewColumn('Directory')
+		self.DMTreeViewCol3.set_fixed_width(200)
+		self.DMTreeViewCol3.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
 		self.DMTreeViewCol1.set_resizable(True)
 		self.DMTreeViewCol2.set_resizable(True)
 		self.DMTreeViewCol3.set_resizable(True)
+		self.DMTreeViewCol4.set_resizable(True)
 		## Create Cell Renderer
 		self.DMCell1 = gtk.CellRendererText()
 		self.DMCell2 = gtk.CellRendererText()
 		self.DMCell3 = gtk.CellRendererProgress()
+		self.DMCell4 = gtk.CellRendererText()
 		## Create Tree View
 		self.DMTreeView = gtk.TreeView(self.DMTreeStore)
 		self.DMTreeView.append_column(self.DMTreeViewCol1)
 		self.DMTreeView.append_column(self.DMTreeViewCol2)
 		self.DMTreeView.append_column(self.DMTreeViewCol3)
+		self.DMTreeView.append_column(self.DMTreeViewCol4)
 		## Create Scroll Window
 		TmpScrollWin = gtk.ScrolledWindow()
 		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 		TmpScrollWin.set_vadjustment(self.DMTreeView.get_vadjustment())
 		TmpScrollWin.add(self.DMTreeView)
+		## Load db record
+		for i in self.ExecuteDB('SELECT * FROM download'):
+			piter = self.DMTreeStore.append(None, (i[0], i[1], i[3], 100, i[4]))
+			for j in i[2].split('|'):
+				self.DMTreeStore.append(piter, (i[0], j, None, 100, None))
 		## Packing
 		self.HBox4 = gtk.HBox(False)
 		self.VBox4 = gtk.VBox(False)
 		self.DMTreeViewCol1.pack_start(self.DMCell1, True)
 		self.DMTreeViewCol2.pack_start(self.DMCell2, True)
 		self.DMTreeViewCol3.pack_start(self.DMCell3, True)
+		self.DMTreeViewCol4.pack_start(self.DMCell4, True)
 		self.DMTreeViewCol1.add_attribute(self.DMCell1, 'text', 1)
 		self.DMTreeViewCol2.add_attribute(self.DMCell2, 'text', 2)
 		self.DMTreeViewCol3.add_attribute(self.DMCell3, 'value', 3)
+		self.DMTreeViewCol4.add_attribute(self.DMCell4, 'text', 4)
 		self.HBox4.pack_start(TmpScrollWin)
 		self.HBox4.pack_start(self.VBox4, False, False, 10)
 		self.NoteBook1.append_page(self.HBox4, 
@@ -744,8 +757,9 @@ class creeper:
 					(
 						ComicID TEXT,
 						ComicName TEXT,
-						ComicIndex TEXT, 
-						Time TEXT
+						ComicIndex TEXT,
+						Time TEXT,
+						Dir TEXT
 					)
 					''')
 	
@@ -796,24 +810,23 @@ class creeper:
 			- Write record to db.
 			- Let download progress run in threads.
 		"""
-		timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M')
+		timestr = datetime.datetime.now().strftime('%Y-%m-%d %p %H:%M').decode('utf8')
 		
 		# check dir
 		if os.path.exists(download_dir) == False:
 			os.mkdir(download_dir)
 		
 		# Added a new record
-		piter = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0))
+		piter = self.DMTreeStore.append(None, (cid, cname, timestr, 0.0, download_dir))
 		self.StatusBar.push(0, 'Start to download: ' + cname)
 		citer = {}
 		db_index = ''# the string stored in db
 		for i in index_store:
 			if i[0]:
 				k = index.index(i[1])
-				citer[k] = self.DMTreeStore.append(piter, (cid, i[1], None, 0.0))
+				citer[k] = self.DMTreeStore.append(piter, (cid, i[1], None, 0.0, None))
 				db_index += (i[1] + '|')
 		db_index = db_index[:-1]
-		## Wirte record to db
 		# Tread
 		def down_task():
 			# check comic dir
@@ -854,6 +867,9 @@ class creeper:
 					self.DMTreeStore.set_value(citer[k], 3, 100)
 			self.DMTreeStore.set_value(piter, 3, 100)
 			self.StatusBar.push(0, 'Finished download: ' + cname)
+			# Wirte record to db after finishing download
+			self.ExecuteDB('INSERT INTO download VALUES(?, ?, ?, ?, ?)',
+					(cid, cname, db_index.decode('utf8'), timestr, download_dir))
 		t = Thread(target=down_task)
 		t.daemon = True
 		t.start()
