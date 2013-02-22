@@ -139,6 +139,13 @@ class creeper:
 		self.DMTreeView.append_column(self.DMTreeViewCol2)
 		self.DMTreeView.append_column(self.DMTreeViewCol3)
 		self.DMTreeView.append_column(self.DMTreeViewCol4)
+		## Create delete_all button
+		icon = gtk.Image()
+		icon.set_from_stock(gtk.STOCK_CLEAR, gtk.ICON_SIZE_MENU)
+		button1 = gtk.Button()
+		button1.add(icon)
+		button1.connect('clicked', self.DMTreeViewDelAll)
+		button1.set_tooltip_text('Delete all the finished download')
 		## Create Scroll Window
 		TmpScrollWin = gtk.ScrolledWindow()
 		TmpScrollWin.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -160,6 +167,7 @@ class creeper:
 		self.DMTreeViewCol2.add_attribute(self.DMCell2, 'text', 2)
 		self.DMTreeViewCol3.add_attribute(self.DMCell3, 'value', 3)
 		self.DMTreeViewCol4.add_attribute(self.DMCell4, 'text', 4)
+		self.VBox4.pack_start(button1, False, False, 2)
 		self.HBox4.pack_start(TmpScrollWin)
 		self.HBox4.pack_start(self.VBox4, False, False, 10)
 		self.NoteBook1.append_page(self.HBox4, 
@@ -795,6 +803,12 @@ class creeper:
 			self.ExecuteDB('DELETE FROM history WHERE Time=?',
 					(timestr,))
 			model.remove(tmpiter)
+	
+	def DMTreeViewDelAll(self, widget):
+		for i in self.DMTreeStore:
+			if i[3] == 100:
+				self.DMTreeStore.remove(i.iter)
+		self.ExecuteDB('DELETE FROM download')
 	
 	def HMTreeViewDelAll(self, widget):
 		self.HMTreeStore.clear()
