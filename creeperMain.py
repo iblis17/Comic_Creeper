@@ -140,6 +140,7 @@ class creeper:
 		self.DMTreeView.append_column(self.DMTreeViewCol2)
 		self.DMTreeView.append_column(self.DMTreeViewCol3)
 		self.DMTreeView.append_column(self.DMTreeViewCol4)
+		self.DMTreeView.connect('row-activated', self.DMClickRow)
 		## Create delete_all button
 		icon = gtk.Image()
 		icon.set_from_stock(gtk.STOCK_CLEAR, gtk.ICON_SIZE_MENU)
@@ -792,6 +793,21 @@ class creeper:
 		comicid = model.get_value(tmpiter, 0)
 		Thread(target=self.ShowIndex, args=(comicid,)).start()
 	
+	def DMClickRow(self, widget, iter, path):
+		model = widget.get_model()
+		ptr = model[iter].iter
+		download_dir = model.get_value(ptr, 4)
+		# child row will return None
+		if download_dir == None:
+			cptr = ptr
+			ptr = model[ptr].parent.iter
+			download_dir = model.get_value(ptr, 4) + '/' +\
+						model.get_value(ptr, 1) + '/' +\
+						model.get_value(cptr, 1)
+		else:
+			download_dir = model.get_value(ptr, 4) + '/' + model.get_value(ptr, 1) + '/'
+		self.OpenDir(download_dir)
+	
 	def BMTreeViewDel(self, widget):
 		model, tmpiter = self.BMTreeView.get_selection().get_selected()
 		if tmpiter != None:
@@ -1008,6 +1024,12 @@ class creeper:
 		if res == gtk.RESPONSE_OK:
 			val_entry.set_text(dialog.get_filename())
 		dialog.destroy()
+	
+	def OpenDir(self, target):
+		if sys.platform.startswith('win32'):
+			return
+		else:
+			os.system('gnome-open ' + target)
 	
 if __name__ == '__main__':
 	cc = creeper()
